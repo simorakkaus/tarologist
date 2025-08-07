@@ -14,9 +14,6 @@ struct ContentView: View {
     @State private var isLoggedIn: Bool = false
     /// Показываем ли экран загрузки
     @State private var isLoading: Bool = true
-    
-    
-    
 
     var body: some View {
         Group {
