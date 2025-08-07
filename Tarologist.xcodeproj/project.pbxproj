@@ -1,0 +1,601 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 77;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		2466DA522E42814A00714BF6 /* FirebaseAuth in Frameworks */ = {isa = PBXBuildFile; productRef = 2466DA512E42814A00714BF6 /* FirebaseAuth */; };
+		2466DA542E42814A00714BF6 /* FirebaseCore in Frameworks */ = {isa = PBXBuildFile; productRef = 2466DA532E42814A00714BF6 /* FirebaseCore */; };
+		2466DA562E42814A00714BF6 /* FirebaseFirestore in Frameworks */ = {isa = PBXBuildFile; productRef = 2466DA552E42814A00714BF6 /* FirebaseFirestore */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXContainerItemProxy section */
+		2466DA342E427DEE00714BF6 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 2466DA1B2E427DEC00714BF6 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 2466DA222E427DEC00714BF6;
+			remoteInfo = Tarologist;
+		};
+		2466DA3E2E427DEE00714BF6 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 2466DA1B2E427DEC00714BF6 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 2466DA222E427DEC00714BF6;
+			remoteInfo = Tarologist;
+		};
+/* End PBXContainerItemProxy section */
+
+/* Begin PBXFileReference section */
+		2466DA232E427DEC00714BF6 /* Tarologist.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Tarologist.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		2466DA332E427DEE00714BF6 /* TarologistTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = TarologistTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		2466DA3D2E427DEE00714BF6 /* TarologistUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = TarologistUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+/* End PBXFileReference section */
+
+/* Begin PBXFileSystemSynchronizedRootGroup section */
+		2466DA252E427DEC00714BF6 /* Tarologist */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			path = Tarologist;
+			sourceTree = "<group>";
+		};
+		2466DA362E427DEE00714BF6 /* TarologistTests */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			path = TarologistTests;
+			sourceTree = "<group>";
+		};
+		2466DA402E427DEE00714BF6 /* TarologistUITests */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			path = TarologistUITests;
+			sourceTree = "<group>";
+		};
+/* End PBXFileSystemSynchronizedRootGroup section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		2466DA202E427DEC00714BF6 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				2466DA542E42814A00714BF6 /* FirebaseCore in Frameworks */,
+				2466DA522E42814A00714BF6 /* FirebaseAuth in Frameworks */,
+				2466DA562E42814A00714BF6 /* FirebaseFirestore in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		2466DA302E427DEE00714BF6 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		2466DA3A2E427DEE00714BF6 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		2466DA1A2E427DEC00714BF6 = {
+			isa = PBXGroup;
+			children = (
+				2466DA252E427DEC00714BF6 /* Tarologist */,
+				2466DA362E427DEE00714BF6 /* TarologistTests */,
+				2466DA402E427DEE00714BF6 /* TarologistUITests */,
+				2466DA242E427DEC00714BF6 /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+		2466DA242E427DEC00714BF6 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				2466DA232E427DEC00714BF6 /* Tarologist.app */,
+				2466DA332E427DEE00714BF6 /* TarologistTests.xctest */,
+				2466DA3D2E427DEE00714BF6 /* TarologistUITests.xctest */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		2466DA222E427DEC00714BF6 /* Tarologist */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 2466DA472E427DEE00714BF6 /* Build configuration list for PBXNativeTarget "Tarologist" */;
+			buildPhases = (
+				2466DA1F2E427DEC00714BF6 /* Sources */,
+				2466DA202E427DEC00714BF6 /* Frameworks */,
+				2466DA212E427DEC00714BF6 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			fileSystemSynchronizedGroups = (
+				2466DA252E427DEC00714BF6 /* Tarologist */,
+			);
+			name = Tarologist;
+			packageProductDependencies = (
+				2466DA512E42814A00714BF6 /* FirebaseAuth */,
+				2466DA532E42814A00714BF6 /* FirebaseCore */,
+				2466DA552E42814A00714BF6 /* FirebaseFirestore */,
+			);
+			productName = Tarologist;
+			productReference = 2466DA232E427DEC00714BF6 /* Tarologist.app */;
+			productType = "com.apple.product-type.application";
+		};
+		2466DA322E427DEE00714BF6 /* TarologistTests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 2466DA4A2E427DEE00714BF6 /* Build configuration list for PBXNativeTarget "TarologistTests" */;
+			buildPhases = (
+				2466DA2F2E427DEE00714BF6 /* Sources */,
+				2466DA302E427DEE00714BF6 /* Frameworks */,
+				2466DA312E427DEE00714BF6 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				2466DA352E427DEE00714BF6 /* PBXTargetDependency */,
+			);
+			fileSystemSynchronizedGroups = (
+				2466DA362E427DEE00714BF6 /* TarologistTests */,
+			);
+			name = TarologistTests;
+			packageProductDependencies = (
+			);
+			productName = TarologistTests;
+			productReference = 2466DA332E427DEE00714BF6 /* TarologistTests.xctest */;
+			productType = "com.apple.product-type.bundle.unit-test";
+		};
+		2466DA3C2E427DEE00714BF6 /* TarologistUITests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 2466DA4D2E427DEE00714BF6 /* Build configuration list for PBXNativeTarget "TarologistUITests" */;
+			buildPhases = (
+				2466DA392E427DEE00714BF6 /* Sources */,
+				2466DA3A2E427DEE00714BF6 /* Frameworks */,
+				2466DA3B2E427DEE00714BF6 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				2466DA3F2E427DEE00714BF6 /* PBXTargetDependency */,
+			);
+			fileSystemSynchronizedGroups = (
+				2466DA402E427DEE00714BF6 /* TarologistUITests */,
+			);
+			name = TarologistUITests;
+			packageProductDependencies = (
+			);
+			productName = TarologistUITests;
+			productReference = 2466DA3D2E427DEE00714BF6 /* TarologistUITests.xctest */;
+			productType = "com.apple.product-type.bundle.ui-testing";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		2466DA1B2E427DEC00714BF6 /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				BuildIndependentTargetsInParallel = 1;
+				LastSwiftUpdateCheck = 1620;
+				LastUpgradeCheck = 1620;
+				TargetAttributes = {
+					2466DA222E427DEC00714BF6 = {
+						CreatedOnToolsVersion = 16.2;
+					};
+					2466DA322E427DEE00714BF6 = {
+						CreatedOnToolsVersion = 16.2;
+						TestTargetID = 2466DA222E427DEC00714BF6;
+					};
+					2466DA3C2E427DEE00714BF6 = {
+						CreatedOnToolsVersion = 16.2;
+						TestTargetID = 2466DA222E427DEC00714BF6;
+					};
+				};
+			};
+			buildConfigurationList = 2466DA1E2E427DEC00714BF6 /* Build configuration list for PBXProject "Tarologist" */;
+			developmentRegion = en;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				en,
+				Base,
+			);
+			mainGroup = 2466DA1A2E427DEC00714BF6;
+			minimizedProjectReferenceProxies = 1;
+			packageReferences = (
+				2466DA502E42814A00714BF6 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */,
+			);
+			preferredProjectObjectVersion = 77;
+			productRefGroup = 2466DA242E427DEC00714BF6 /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				2466DA222E427DEC00714BF6 /* Tarologist */,
+				2466DA322E427DEE00714BF6 /* TarologistTests */,
+				2466DA3C2E427DEE00714BF6 /* TarologistUITests */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		2466DA212E427DEC00714BF6 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		2466DA312E427DEE00714BF6 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		2466DA3B2E427DEE00714BF6 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		2466DA1F2E427DEC00714BF6 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		2466DA2F2E427DEE00714BF6 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		2466DA392E427DEE00714BF6 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		2466DA352E427DEE00714BF6 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 2466DA222E427DEC00714BF6 /* Tarologist */;
+			targetProxy = 2466DA342E427DEE00714BF6 /* PBXContainerItemProxy */;
+		};
+		2466DA3F2E427DEE00714BF6 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 2466DA222E427DEC00714BF6 /* Tarologist */;
+			targetProxy = 2466DA3E2E427DEE00714BF6 /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
+
+/* Begin XCBuildConfiguration section */
+		2466DA452E427DEE00714BF6 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu17;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 18.2;
+				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
+				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
+				MTL_FAST_MATH = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				SDKROOT = iphoneos;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "DEBUG $(inherited)";
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+			};
+			name = Debug;
+		};
+		2466DA462E427DEE00714BF6 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu17;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 18.2;
+				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				MTL_FAST_MATH = YES;
+				SDKROOT = iphoneos;
+				SWIFT_COMPILATION_MODE = wholemodule;
+				VALIDATE_PRODUCT = YES;
+			};
+			name = Release;
+		};
+		2466DA482E427DEE00714BF6 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_ASSET_PATHS = "\"Tarologist/Preview Content\"";
+				ENABLE_PREVIEWS = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
+				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
+				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.simo.Tarologist;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
+		2466DA492E427DEE00714BF6 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_ASSET_PATHS = "\"Tarologist/Preview Content\"";
+				ENABLE_PREVIEWS = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
+				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
+				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.simo.Tarologist;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Release;
+		};
+		2466DA4B2E427DEE00714BF6 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				GENERATE_INFOPLIST_FILE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 18.2;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.simo.TarologistTests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Tarologist.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/Tarologist";
+			};
+			name = Debug;
+		};
+		2466DA4C2E427DEE00714BF6 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				GENERATE_INFOPLIST_FILE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 18.2;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.simo.TarologistTests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Tarologist.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/Tarologist";
+			};
+			name = Release;
+		};
+		2466DA4E2E427DEE00714BF6 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				GENERATE_INFOPLIST_FILE = YES;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.simo.TarologistUITests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_TARGET_NAME = Tarologist;
+			};
+			name = Debug;
+		};
+		2466DA4F2E427DEE00714BF6 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				GENERATE_INFOPLIST_FILE = YES;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.simo.TarologistUITests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_TARGET_NAME = Tarologist;
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		2466DA1E2E427DEC00714BF6 /* Build configuration list for PBXProject "Tarologist" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				2466DA452E427DEE00714BF6 /* Debug */,
+				2466DA462E427DEE00714BF6 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		2466DA472E427DEE00714BF6 /* Build configuration list for PBXNativeTarget "Tarologist" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				2466DA482E427DEE00714BF6 /* Debug */,
+				2466DA492E427DEE00714BF6 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		2466DA4A2E427DEE00714BF6 /* Build configuration list for PBXNativeTarget "TarologistTests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				2466DA4B2E427DEE00714BF6 /* Debug */,
+				2466DA4C2E427DEE00714BF6 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		2466DA4D2E427DEE00714BF6 /* Build configuration list for PBXNativeTarget "TarologistUITests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				2466DA4E2E427DEE00714BF6 /* Debug */,
+				2466DA4F2E427DEE00714BF6 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+/* End XCConfigurationList section */
+
+/* Begin XCRemoteSwiftPackageReference section */
+		2466DA502E42814A00714BF6 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/firebase/firebase-ios-sdk";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 12.1.0;
+			};
+		};
+/* End XCRemoteSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		2466DA512E42814A00714BF6 /* FirebaseAuth */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 2466DA502E42814A00714BF6 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
+			productName = FirebaseAuth;
+		};
+		2466DA532E42814A00714BF6 /* FirebaseCore */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 2466DA502E42814A00714BF6 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
+			productName = FirebaseCore;
+		};
+		2466DA552E42814A00714BF6 /* FirebaseFirestore */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 2466DA502E42814A00714BF6 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
+			productName = FirebaseFirestore;
+		};
+/* End XCSwiftPackageProductDependency section */
+	};
+	rootObject = 2466DA1B2E427DEC00714BF6 /* Project object */;
+}
