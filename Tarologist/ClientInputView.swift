@@ -8,7 +8,6 @@
 import SwiftUI
 import FirebaseFirestore
 import FirebaseAuth
-
 /// Экран ввода информации о клиенте перед началом гадания
 struct ClientInputView: View {
     @State private var clientName: String = ""
