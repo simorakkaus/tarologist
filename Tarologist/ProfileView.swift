@@ -47,7 +47,7 @@ struct ProfileView: View {
                         .font(.headline)
 
                     Button("Оформить подписку") {
-                        startPaymentFlow()
+                        //startPaymentFlow()
                     }
                     .padding()
                     .background(Color.blue)
@@ -72,21 +72,21 @@ struct ProfileView: View {
         }
         .padding()
         .onAppear {
-            checkSubscription()
+            //checkSubscription()
         }
         .fullScreenCover(isPresented: $showLoginScreen) {
             LoginRegisterView {
                 showLoginScreen = false
-                checkSubscription()
+                //checkSubscription()
             }
         }
     }
 
-    // MARK: - Проверка подписки
-
-    private func checkSubscription() {
-        isLoading = true
-        UserService.shared.hasActiveSubscription { result in
+//    // MARK: - Проверка подписки
+//
+//    private func checkSubscription() {
+//        isLoading = true
+//        UserService.shared.hasActiveSubscription { result in
 //            DispatchQueue.main.async {
 //                switch result {
 //                case .success(let active):
@@ -97,12 +97,12 @@ struct ProfileView: View {
 //                }
 //                self.isLoading = false
 //            }
-        }
-    }
+//        }
+//    }
 
-    // MARK: - Запуск оплаты
-
-    private func startPaymentFlow() {
+//    // MARK: - Запуск оплаты
+//
+//    private func startPaymentFlow() {
 //        PaymentService.shared.startSubscriptionPayment { success, error in
 //            if success {
 //                checkSubscription()
@@ -110,5 +110,5 @@ struct ProfileView: View {
 //                self.errorMessage = error?.localizedDescription ?? "Ошибка при оплате"
 //            }
 //        }
-    }
+//    }
 }

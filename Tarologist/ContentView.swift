@@ -1,37 +1,53 @@
-//
-//  ContentView.swift
-//  Tarologist
-//
-//  Created by Simo on 05.08.2025.
-//
-
 import SwiftUI
 import FirebaseAuth
 
-/// Корневой экран, определяет, что показывать: экран загрузки, авторизацию или основной интерфейс
+/// Корневой экран, который определяет, куда перейти: в основной интерфейс или в авторизацию
 struct ContentView: View {
     /// Показываем ли главный интерфейс? (true, если пользователь вошел)
     @State private var isLoggedIn: Bool = false
-    /// Показываем ли экран загрузки
+    /// Показываем ли индикатор загрузки
     @State private var isLoading: Bool = true
 
     var body: some View {
         Group {
             if isLoading {
-                LaunchScreenView()
-            } else if isLoggedIn {
-                MainTabView()
+                // Пока идёт загрузка — показываем спиннер и подпись
+                VStack(spacing: 16) {
+                    ProgressView()
+                        .progressViewStyle(CircularProgressViewStyle())
+                        .scaleEffect(1.5)
+                    Text("Загрузка...")
+                        .font(.headline)
+                }
             } else {
-                LoginRegisterView {
-                    isLoggedIn = true
+                // После загрузки выбираем экран
+                if isLoggedIn {
+                    MainTabView()
+                } else {
+                    // Передаем замыкание, чтобы `LoginRegisterView` мог сообщить об успешном входе
+                    LoginRegisterView {
+                        isLoggedIn = true
+                    }
                 }
             }
         }
         .onAppear {
             // Показываем экран загрузки 2 секунды, затем проверяем авторизацию
             DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
-                isLoggedIn = Auth.auth().currentUser != nil
-                isLoading = false
+                if let user = Auth.auth().currentUser {
+                    user.reload { error in
+                        if let error = error {
+                            print("User reload failed: \(error.localizedDescription)")
+                            isLoggedIn = false
+                        } else {
+                            isLoggedIn = true
+                        }
+                        isLoading = false
+                    }
+                } else {
+                    isLoggedIn = false
+                    isLoading = false
+                }
             }
         }
     }
@@ -40,3 +56,4 @@ struct ContentView: View {
 #Preview {
     ContentView()
 }
+
