@@ -8,85 +8,105 @@
 import SwiftUI
 import FirebaseAuth
 
-/// Универсальный экран входа и регистрации.
-/// Вызывает `onLoginSuccess`, если вход или регистрация прошли успешно.
+/// Экран входа и регистрации.
+/// Использует @AppStorage("isLoggedIn") как единый флаг авторизации.
+/// При успехе вызывает `onLoginSuccess` (опционально) и поднимает флаг авторизации.
 struct LoginRegisterView: View {
-    var onLoginSuccess: () -> Void
+    /// Колбэк на случай, если родитель хочет отреагировать дополнительно.
+    var onLoginSuccess: () -> Void = {}
+
+    @AppStorage("isLoggedIn") private var isLoggedIn: Bool = false
 
     @State private var login = ""
     @State private var password = ""
     @State private var isLoginMode = true
+    @State private var isLoading = false
     @State private var errorMessage: String?
 
     var body: some View {
-        VStack(spacing: 20) {
-            Text(isLoginMode ? "Вход" : "Регистрация")
-                .font(.title)
-                .padding(.top)
+        ScrollView {
+            VStack(spacing: 20) {
+                Text(isLoginMode ? "Вход" : "Регистрация")
+                    .font(.title)
+                    .padding(.top)
 
-            // Логин (на самом деле просто имя пользователя, email подставляется автоматически)
-            TextField("Логин", text: $login)
-                .textFieldStyle(RoundedBorderTextFieldStyle())
-                .autocapitalization(.none)
+                // ЛОГИН (имя-псевдоemail – без персональных данных)
+                TextField("Логин", text: $login)
+                    .textFieldStyle(.roundedBorder)
+                    .textInputAutocapitalization(.never)
+                    .disableAutocorrection(true)
 
-            // Пароль
-            SecureField("Пароль", text: $password)
-                .textFieldStyle(RoundedBorderTextFieldStyle())
+                // ПАРОЛЬ
+                SecureField("Пароль", text: $password)
+                    .textFieldStyle(.roundedBorder)
 
-            // Сообщение об ошибке
-            if let error = errorMessage {
-                Text(error)
-                    .foregroundColor(.red)
-            }
+                if let error = errorMessage {
+                    Text(error)
+                        .foregroundColor(.red)
+                        .fixedSize(horizontal: false, vertical: true)
+                }
 
-            // Кнопка входа или регистрации
-            Button(isLoginMode ? "Войти" : "Зарегистрироваться") {
-                authenticateUser()
+                Button(action: authenticateUser) {
+                    HStack {
+                        if isLoading { ProgressView().padding(.trailing, 8) }
+                        Text(isLoginMode ? "Войти" : "Зарегистрироваться")
+                            .bold()
+                    }
+                    .frame(maxWidth: .infinity)
+                    .padding()
+                    .background(Color.blue)
+                    .foregroundColor(.white)
+                    .cornerRadius(10)
+                }
+                .disabled(isLoading || login.isEmpty || password.isEmpty)
+
+                Button(isLoginMode ? "Нет аккаунта? Зарегистрироваться" : "Уже есть аккаунт? Войти") {
+                    isLoginMode.toggle()
+                    errorMessage = nil
+                }
+
+                Button("Нужна помощь?") {
+                    contactSupport()
+                }
+                .padding(.top, 10)
+                .opacity(isLoading ? 0.5 : 1.0)
+                .disabled(isLoading)
             }
             .padding()
-            .frame(maxWidth: .infinity)
-            .background(Color.blue)
-            .foregroundColor(.white)
-            .cornerRadius(8)
-
-            // Смена режима
-            Button(isLoginMode ? "Нет аккаунта? Зарегистрироваться" : "Уже есть аккаунт? Войти") {
-                isLoginMode.toggle()
-                errorMessage = nil
-            }
-
-            // Кнопка "Нужна помощь"
-            Button("Нужна помощь?") {
-                contactSupport()
-            }
-            .padding(.top, 10)
         }
-        .padding()
     }
 
     // MARK: - Аутентификация
 
     private func authenticateUser() {
+        // Конструируем псевдо-email (workaround без ПДн).
         let email = login + "@example.com"
+        errorMessage = nil
+        isLoading = true
 
         if isLoginMode {
-            // Вход
-            Auth.auth().signIn(withEmail: email, password: password) { result, error in
-                if let error = error {
-                    errorMessage = error.localizedDescription
-                } else {
-                    onLoginSuccess()
-                }
+            Auth.auth().signIn(withEmail: email, password: password) { _, error in
+                handleAuthResult(error: error)
             }
         } else {
-            // Регистрация
-            Auth.auth().createUser(withEmail: email, password: password) { result, error in
-                if let error = error {
-                    errorMessage = error.localizedDescription
-                } else {
-                    onLoginSuccess()
-                }
+            Auth.auth().createUser(withEmail: email, password: password) { _, error in
+                handleAuthResult(error: error)
             }
+        }
+    }
+
+    private func handleAuthResult(error: Error?) {
+        if let error = error {
+            self.errorMessage = error.localizedDescription
+            self.isLoading = false
+            return
+        }
+
+        // Обновим пользователя с сервера на всякий случай, затем поднимем флаг авторизации.
+        Auth.auth().currentUser?.reload { _ in
+            self.isLoggedIn = (Auth.auth().currentUser != nil)
+            self.isLoading = false
+            self.onLoginSuccess()
         }
     }
 
@@ -101,3 +121,4 @@ struct LoginRegisterView: View {
         }
     }
 }
+
