@@ -12,7 +12,7 @@ struct MainTabView: View {
     var body: some View {
         TabView {
             /// Первая вкладка — история и запуск нового гадания
-            NavigationView {
+            NavigationStack {
                 SessionsListView()
             }
             .tabItem {
@@ -21,7 +21,7 @@ struct MainTabView: View {
             }
 
             /// Вторая вкладка — профиль, управление подпиской и выход
-            NavigationView {
+            NavigationStack {
                 ProfileView()
             }
             .tabItem {
@@ -29,8 +29,11 @@ struct MainTabView: View {
                 Text("Профиль")
             }
         }
+        .accentColor(.blue)
     }
 }
+
 #Preview {
     MainTabView()
+        .environmentObject(SessionManager())
 }
