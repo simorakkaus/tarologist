@@ -8,7 +8,6 @@
 import SwiftUI
 import FirebaseFirestore
 
-// Добавляем enum для управления модальными окнами
 enum ActiveSheet: Identifiable {
     case categorySelection
     case questionSelection
@@ -29,82 +28,160 @@ struct ClientInputView: View {
     @State private var isLoading: Bool = false
     @State private var errorMessage: String?
     @State private var showSupportAlert: Bool = false
-    @State private var activeSheet: ActiveSheet? // Управление модальными окнами
+    @State private var activeSheet: ActiveSheet?
+    
+    // Для управления фокусом и клавиатурой
+    @FocusState private var focusedField: Field?
+    
+    enum Field {
+        case clientName
+        case clientAge
+        case customQuestion
+    }
     
     @StateObject private var questionManager = QuestionManager()
     
     var body: some View {
         NavigationView {
-            Form {
-                // Section 1: Client Information
-                Section(header: Text("Данные клиента")) {
-                    TextField("Имя клиента", text: $clientName)
-                    TextField("Возраст клиента", text: $clientAge)
-                        .keyboardType(.numberPad)
-                }
+            ZStack {
+                // Фон для скрытия клавиатуры по тапу
+                Color.clear
+                    .contentShape(Rectangle())
+                    .onTapGesture {
+                        hideKeyboard()
+                    }
                 
-                // Section 2: Question Category
-                Section(header: Text("Категория вопроса")) {
-                    if let selectedCategory = selectedCategory {
-                        HStack {
-                            Text(selectedCategory.name)
-                                .lineLimit(2)
-                            Spacer()
-                            Button("Изменить") {
+                Form {
+                    // Section 1: Client Information
+                    Section(header: Text("Данные клиента")) {
+                        TextField("Имя клиента", text: $clientName)
+                            .focused($focusedField, equals: .clientName)
+                            .submitLabel(.next)
+                            .onSubmit {
+                                focusedField = .clientAge
+                            }
+                        
+                        TextField("Возраст клиента", text: $clientAge)
+                            .focused($focusedField, equals: .clientAge)
+                            .keyboardType(.numberPad) // Показываем только цифровую клавиатуру
+                            .submitLabel(.done) // Устанавливаем кнопку "Готово" на клавиатуре
+                            .onSubmit {
+                                hideKeyboard() // Скрываем клавиатуру при нажатии на "Готово"
+                            }
+                            .onChange(of: clientAge) { newValue in
+                                // ВАЛИДАЦИЯ ВВОДА ВОЗРАСТА:
+                                // 1. Удаляем все нечисловые символы (буквы, символы и т.д.)
+                                let numbersOnly = newValue.filter { $0.isNumber }
+                                
+                                // 2. Ограничиваем ввод двумя цифрами (максимум 99 лет)
+                                let limited = String(numbersOnly.prefix(2))
+                                
+                                // 3. Если введено более 2 цифр, показываем предупреждение
+                                if numbersOnly.count > 2 {
+                                    // Показываем предупреждение на 2 секунды
+                                    errorMessage = "Возраст не может превышать 99 лет"
+                                    DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
+                                        errorMessage = nil
+                                    }
+                                }
+                                
+                                // 4. Всегда обновляем значение только отфильтрованными цифрами (макс. 2)
+                                if numbersOnly != newValue || numbersOnly.count > 2 {
+                                    clientAge = limited
+                                }
+                                
+                                // 5. Дополнительная проверка: если значение больше 99, устанавливаем 99
+                                if let age = Int(limited), age > 99 {
+                                    clientAge = "99"
+                                }
+                            }
+                        // Отображение сообщения об ошибке валидации возраста
+                        if let errorMessage = errorMessage {
+                            Text(errorMessage)
+                                .font(.caption)
+                                .foregroundColor(.red)
+                                .transition(.opacity)
+                                .animation(.easeInOut, value: errorMessage)
+                        }
+                    }
+                    
+                    // Section 2: Question Category
+                    Section(header: Text("Категория вопроса")) {
+                        if let selectedCategory = selectedCategory {
+                            HStack {
+                                Text(selectedCategory.name)
+                                    .lineLimit(2)
+                                Spacer()
+                                Button("Изменить") {
+                                    hideKeyboard()
+                                    activeSheet = .categorySelection
+                                }
+                                .foregroundColor(.blue)
+                            }
+                        } else {
+                            Button("Выберите категорию вопроса") {
+                                hideKeyboard()
                                 activeSheet = .categorySelection
                             }
-                            .foregroundColor(.blue)
-                        }
-                    } else {
-                        Button("Выберите категорию вопроса") {
-                            activeSheet = .categorySelection
                         }
                     }
-                }
-                
-                // Section 3: Question Selection
-                if selectedCategory != nil {
-                    Section(header: Text("Вопрос")) {
-                        if !isUsingCustomQuestion {
-                            if let selectedQuestion = selectedQuestion {
-                                HStack {
-                                    Text(selectedQuestion.text)
-                                        .lineLimit(3)
-                                    Spacer()
-                                    Button("Изменить") {
+                    
+                    // Section 3: Question Selection
+                    if selectedCategory != nil {
+                        Section(header: Text("Вопрос")) {
+                            if !isUsingCustomQuestion {
+                                if let selectedQuestion = selectedQuestion {
+                                    HStack {
+                                        Text(selectedQuestion.text)
+                                            .lineLimit(3)
+                                        Spacer()
+                                        Button("Изменить") {
+                                            hideKeyboard()
+                                            activeSheet = .questionSelection
+                                        }
+                                        .foregroundColor(.blue)
+                                    }
+                                } else {
+                                    Button("Выберите вопрос") {
+                                        hideKeyboard()
                                         activeSheet = .questionSelection
                                     }
-                                    .foregroundColor(.blue)
                                 }
+                                
+                                Button("Не нашли подходящий вопрос?") {
+                                    hideKeyboard()
+                                    isUsingCustomQuestion = true
+                                    focusedField = .customQuestion
+                                }
+                                .foregroundColor(.blue)
                             } else {
-                                Button("Выберите вопрос") {
-                                    activeSheet = .questionSelection
+                                TextField("Введите свой вопрос", text: $customQuestion)
+                                    .focused($focusedField, equals: .customQuestion)
+                                    .lineLimit(3)
+                                    .submitLabel(.done)
+                                    .onSubmit {
+                                        hideKeyboard()
+                                    }
+                                
+                                Button("Вернуться к списку вопросов") {
+                                    hideKeyboard()
+                                    isUsingCustomQuestion = false
+                                    customQuestion = ""
                                 }
+                                .foregroundColor(.blue)
                             }
-                            
-                            Button("Не нашли подходящий вопрос?") {
-                                isUsingCustomQuestion = true
-                            }
-                            .foregroundColor(.blue)
-                        } else {
-                            TextField("Введите свой вопрос", text: $customQuestion)
-                                .lineLimit(3)
-                            
-                            Button("Вернуться к списку вопросов") {
-                                isUsingCustomQuestion = false
-                                customQuestion = ""
-                            }
-                            .foregroundColor(.blue)
+                        }
+                    }
+                    
+                    // Section 4: Support Information
+                    Section(header: Text("Поддержка")) {
+                        Button("Предложить новую категорию или вопрос") {
+                            hideKeyboard()
+                            showSupportAlert = true
                         }
                     }
                 }
-                
-                // Section 4: Support Information
-                Section(header: Text("Поддержка")) {
-                    Button("Предложить новую категорию или вопрос") {
-                        showSupportAlert = true
-                    }
-                }
+                .scrollDismissesKeyboard(.interactively)
             }
             .navigationTitle("Новое гадание")
             .navigationBarItems(
@@ -150,9 +227,10 @@ struct ClientInputView: View {
             }
             .onAppear {
                 loadData()
-            }
-            .onAppear {
-                loadData()
+                // Автофокус на поле имени при открытии
+                DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+                    focusedField = .clientName
+                }
             }
         }
     }
@@ -172,6 +250,8 @@ struct ClientInputView: View {
     }
     
     private func startReading() {
+        hideKeyboard()
+        
         // TODO: Implement starting a reading session
         print("Starting reading for client: \(clientName), age: \(clientAge)")
         
@@ -185,4 +265,13 @@ struct ClientInputView: View {
         
         presentationMode.wrappedValue.dismiss()
     }
+    
+    private func hideKeyboard() {
+        focusedField = nil
+        UIApplication.shared.sendAction(#selector(UIResponder.resignFirstResponder), to: nil, from: nil, for: nil)
+    }
+}
+
+#Preview {
+    ClientInputView()
 }
