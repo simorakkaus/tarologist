@@ -12,7 +12,7 @@ import FirebaseAuth
 /// Восстановление доступа осуществляется через обращение в поддержку.
 struct LoginRegisterView: View {
     // MARK: - Environment Properties
-    @EnvironmentObject private var sessionManager: SessionManager
+    @EnvironmentObject private var authManager: AuthManager
     
     // MARK: - State Properties
     @State private var login = ""
@@ -229,5 +229,5 @@ struct LoginRegisterView: View {
 
 #Preview {
     LoginRegisterView()
-        .environmentObject(SessionManager())
+        .environmentObject(AuthManager())
 }

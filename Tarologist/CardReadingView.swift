@@ -7,9 +7,6 @@
 
 import SwiftUI
 
-
-
-
 struct CardReadingView: View {
     let clientName: String
     let clientAge: String

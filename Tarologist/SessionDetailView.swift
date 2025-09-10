@@ -11,7 +11,7 @@ import FirebaseFirestore
 struct SessionDetailView: View {
     let session: TarotSession
     @Environment(\.presentationMode) var presentationMode
-    @EnvironmentObject private var sessionManager: SessionManager
+    @EnvironmentObject private var sessionManager: AuthManager
     @State private var showingDeleteAlert = false
     @State private var showingShareSheet = false
     @State private var showingEditView = false
@@ -250,7 +250,7 @@ struct SessionDetailView: View {
 struct EditSessionView: View {
     let session: TarotSession
     @Environment(\.presentationMode) var presentationMode
-    @EnvironmentObject private var sessionManager: SessionManager
+    @EnvironmentObject private var authManager: AuthManager
     @State private var clientName: String
     @State private var isLoading = false
     
@@ -292,7 +292,7 @@ struct EditSessionView: View {
     }
     
     private func saveChanges() {
-        guard let userID = sessionManager.getCurrentUserId() else { return }
+        guard let userID = authManager.getCurrentUserId() else { return }
         
         isLoading = true
         
@@ -339,6 +339,6 @@ struct ShareSheet: UIViewControllerRepresentable {
             interpretation: "Это пример толкования, которое может быть сгенерировано ИИ для данной сессии гадания. Карты показывают...",
             isSent: false
         ))
-        .environmentObject(SessionManager())
+        .environmentObject(AuthManager())
     }
 }

@@ -11,7 +11,7 @@ import FirebaseFirestore
 
 /// Экран списка прошлых сессий гадания
 struct SessionsListView: View {
-    @EnvironmentObject private var sessionManager: SessionManager
+    @EnvironmentObject private var authManager: AuthManager
     // FirestoreService будет добавлен позже
     
     @State private var sessions: [TarotSession] = []
@@ -173,7 +173,7 @@ struct SessionsListView: View {
     // MARK: - Загрузка сессий из Firestore
     
     private func fetchSessions() {
-        guard let userID = sessionManager.getCurrentUserId() else {
+        guard let userID = authManager.getCurrentUserId() else {
             self.errorMessage = "Пользователь не авторизован"
             self.isLoading = false
             return
@@ -199,7 +199,7 @@ struct SessionsListView: View {
     // MARK: - Действия с сессиями
     
     private func deleteSession(_ session: TarotSession) {
-        guard let userID = sessionManager.getCurrentUserId() else { return }
+        guard let userID = authManager.getCurrentUserId() else { return }
         
         TarotSessionManager.shared.deleteSession(session, for: userID) { result in
             switch result {
@@ -215,7 +215,7 @@ struct SessionsListView: View {
     }
     
     private func markAsSent(_ session: TarotSession) {
-        guard let userID = sessionManager.getCurrentUserId() else { return }
+        guard let userID = authManager.getCurrentUserId() else { return }
         
         // Создаем новую сессию с isSent = true
         let updatedSession = TarotSession(
@@ -336,5 +336,5 @@ struct FilterButton: View {
 
 #Preview {
     SessionsListView()
-        .environmentObject(SessionManager())
+        .environmentObject(AuthManager())
 }

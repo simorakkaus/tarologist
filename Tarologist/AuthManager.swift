@@ -10,7 +10,7 @@ import FirebaseAuth
 import Combine
 
 @MainActor
-class SessionManager: ObservableObject {
+class AuthManager: ObservableObject {
     @Published var isLoggedIn: Bool = false
     @Published var isLoading: Bool = true
 

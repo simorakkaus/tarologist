@@ -13,12 +13,12 @@ import FirebaseFirestore
 @main
 struct TarologistApp: App {
     @UIApplicationDelegateAdaptor(AppDelegate.self) var delegate
-    @StateObject private var sessionManager = SessionManager()
+    @StateObject private var authManager = AuthManager()
 
     var body: some Scene {
         WindowGroup {
             RootViewSwitcher()
-                .environmentObject(sessionManager)
+                .environmentObject(authManager)
         }
     }
 }
@@ -40,11 +40,11 @@ class AppDelegate: NSObject, UIApplicationDelegate {
 }
 
 struct RootViewSwitcher: View {
-    @EnvironmentObject var sessionManager: SessionManager
+    @EnvironmentObject var authManager: AuthManager
 
     var body: some View {
         Group {
-            if sessionManager.isLoading {
+            if authManager.isLoading {
                 VStack(spacing: 16) {
                     ProgressView()
                         .progressViewStyle(.circular)
@@ -53,7 +53,7 @@ struct RootViewSwitcher: View {
                         .font(.headline)
                 }
             } else {
-                if sessionManager.isLoggedIn {
+                if authManager.isLoggedIn {
                     MainTabView()
                 } else {
                     LoginRegisterView()
