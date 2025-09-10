@@ -1,27 +1,108 @@
 //
-//  ReadingManager.swift
+//  SessionManager.swift
 //  Tarologist
 //
-//  Created by Simo on 30.08.2025.
+//  Created by Simo on 10.09.2025.
 //
 
 import Foundation
 import FirebaseFirestore
 import FirebaseAuth
+import Combine
 
-class ReadingManager: ObservableObject {
+class SessionManager: ObservableObject {
     @Published var interpretation: String = ""
     @Published var isGeneratingInterpretation = false
     
     private let db = Firestore.firestore()
+    static let shared = SessionManager()
     
+    private init() {}
+    
+    // MARK: - Session Management
+    
+    // ДОБАВЛЕННЫЙ МЕТОД из TarotSessionManager
+    func saveSession(_ session: TarotSession, for userId: String, completion: @escaping (Result<String, Error>) -> Void) {
+        do {
+            let ref = db.collection("users")
+                .document(userId)
+                .collection("sessions")
+                .document()
+            
+            let data = try session.toDictionary()
+            
+            ref.setData(data) { error in
+                if let error = error {
+                    completion(.failure(error))
+                } else {
+                    completion(.success(ref.documentID))
+                }
+            }
+        } catch {
+            completion(.failure(error))
+        }
+    }
+    
+    func fetchSessions(for userId: String, completion: @escaping (Result<[TarotSession], Error>) -> Void) {
+        db.collection("users")
+            .document(userId)
+            .collection("sessions")
+            .order(by: "date", descending: true)
+            .getDocuments { snapshot, error in
+                if let error = error {
+                    completion(.failure(error))
+                    return
+                }
+                
+                let sessions = snapshot?.documents.compactMap { TarotSession(document: $0) } ?? []
+                completion(.success(sessions))
+            }
+    }
+    
+    func updateSession(_ session: TarotSession, for userId: String, completion: @escaping (Result<Void, Error>) -> Void) {
+        do {
+            let data = session.toDictionary()
+            
+            db.collection("users")
+                .document(userId)
+                .collection("sessions")
+                .document(session.id)
+                .setData(data, merge: true) { error in
+                    if let error = error {
+                        completion(.failure(error))
+                    } else {
+                        completion(.success(()))
+                    }
+                }
+        } catch {
+            completion(.failure(error))
+        }
+    }
+    
+    func deleteSession(_ session: TarotSession, for userId: String, completion: @escaping (Result<Void, Error>) -> Void) {
+        db.collection("users")
+            .document(userId)
+            .collection("sessions")
+            .document(session.id)
+            .delete { error in
+                if let error = error {
+                    completion(.failure(error))
+                } else {
+                    completion(.success(()))
+                }
+            }
+    }
+    
+    // MARK: - Reading Operations
+    
+    // УЛУЧШЕННАЯ ВЕРСИЯ - возвращает интерпретацию в completion
     func generateInterpretation(
         for drawnCards: [DrawnCard],
         clientName: String,
         clientAge: String,
         question: String,
         questionCategory: String,
-        completion: @escaping (Result<Void, Error>) -> Void
+        completion: @escaping (Result<String, Error>) -> Void
     ) {
         isGeneratingInterpretation = true
         
@@ -46,7 +127,7 @@ class ReadingManager: ObservableObject {
         // Здесь будет интеграция с AIService
         // Временно используем заглушку
         DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
-            self.interpretation = """
+            let interpretation = """
             На основе выпавших карт, можно сказать следующее:
             
             В прошлом прослеживается влияние карты \(drawnCards[0].card.nameRu), что указывает на \(drawnCards[0].isReversed ? drawnCards[0].card.meaningShadow : drawnCards[0].card.meaningLight).
@@ -58,11 +139,13 @@ class ReadingManager: ObservableObject {
             Общая рекомендация: обратите внимание на свои внутренние ощущения и доверьтесь интуиции при принятии решений.
             """
             
+            self.interpretation = interpretation
             self.isGeneratingInterpretation = false
-            completion(.success(()))
+            completion(.success(interpretation))
         }
     }
     
+    // УЛУЧШЕННАЯ ВЕРСИЯ - принимает интерпретацию как параметр
     func saveReading(
         clientName: String,
         clientAge: String,
@@ -71,10 +154,11 @@ class ReadingManager: ObservableObject {
         customQuestion: String?,
         spread: Spread,
         drawnCards: [DrawnCard],
+        interpretation: String, // Явный параметр вместо использования свойства
         completion: @escaping (Result<Void, Error>) -> Void
     ) {
         guard let userId = Auth.auth().currentUser?.uid else {
-            completion(.failure(NSError(domain: "ReadingManager", code: 401, userInfo: [NSLocalizedDescriptionKey: "Пользователь не авторизован"])))
+            completion(.failure(NSError(domain: "SessionManager", code: 401, userInfo: [NSLocalizedDescriptionKey: "Пользователь не авторизован"])))
             return
         }
         
@@ -102,16 +186,15 @@ class ReadingManager: ObservableObject {
             "spreadId": spread.id,
             "spreadName": spread.name,
             "drawnCards": drawnCardsData,
-            "interpretation": interpretation,
+            "interpretation": interpretation, // Используем переданный параметр
             "date": Timestamp(date: Date()),
             "isSent": false
         ]
         
-        
         db.collection("users")
             .document(userId)
             .collection("sessions")
-            .document(sessionId)     // ← Используем наш сгенерированный ID
+            .document(sessionId)
             .setData(readingData) { error in
                 if let error = error {
                     completion(.failure(error))

@@ -182,7 +182,7 @@ struct SessionsListView: View {
         isLoading = true
         errorMessage = nil
         
-        TarotSessionManager.shared.fetchSessions(for: userID) { result in
+        SessionManager.shared.fetchSessions(for: userID) { result in
             DispatchQueue.main.async {
                 self.isLoading = false
                 
@@ -201,7 +201,7 @@ struct SessionsListView: View {
     private func deleteSession(_ session: TarotSession) {
         guard let userID = authManager.getCurrentUserId() else { return }
         
-        TarotSessionManager.shared.deleteSession(session, for: userID) { result in
+        SessionManager.shared.deleteSession(session, for: userID) { result in
             switch result {
             case .success:
                 // Удаляем сессию из локального массива
@@ -232,7 +232,7 @@ struct SessionsListView: View {
             isSent: true  // Устанавливаем isSent в true
         )
         
-        TarotSessionManager.shared.updateSession(updatedSession, for: userID) { result in
+        SessionManager.shared.updateSession(updatedSession, for: userID) { result in
             switch result {
             case .success:
                 // Обновляем сессию в локальном массиве

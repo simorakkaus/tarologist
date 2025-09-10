@@ -16,7 +16,7 @@ struct CardReadingView: View {
     let selectedSpread: Spread
     
     //@StateObject private var aiService = AIService()
-    @StateObject private var readingManager = ReadingManager()
+    @ObservedObject private var sessionManager = SessionManager.shared
     
     @State private var drawnCards: [DrawnCard] = []
     @State private var currentPositionIndex = 0
@@ -79,7 +79,7 @@ struct CardReadingView: View {
                             // Результаты толкования
                             if isInterpretationGenerated {
                                 InterpretationView(
-                                    interpretation: readingManager.interpretation,
+                                    interpretation: sessionManager.interpretation,
                                     onShowDetails: { showInterpretation = true }
                                 )
                             }
@@ -98,7 +98,7 @@ struct CardReadingView: View {
                 }
                 
                 // Индикатор загрузки для генерации толкования
-                if readingManager.isGeneratingInterpretation {
+                if sessionManager.isGeneratingInterpretation {
                     Color.black.opacity(0.4)
                         .edgesIgnoringSafeArea(.all)
                     
@@ -121,7 +121,7 @@ struct CardReadingView: View {
             }
             .sheet(isPresented: $showInterpretation) {
                 InterpretationDetailView(
-                    interpretation: readingManager.interpretation,
+                    interpretation: sessionManager.interpretation,
                     drawnCards: drawnCards
                 )
             }
@@ -175,14 +175,14 @@ struct CardReadingView: View {
     // MARK: - Interpretation
     
     private func generateInterpretation() {
-        readingManager.generateInterpretation(
-            for: drawnCards,
-            clientName: clientName,
-            clientAge: clientAge,
-            question: question?.text ?? customQuestion ?? "",
-            questionCategory: questionCategory.name
-        ) { result in
-            switch result {
+            sessionManager.generateInterpretation(
+                for: drawnCards,
+                clientName: clientName,
+                clientAge: clientAge,
+                question: question?.text ?? customQuestion ?? "",
+                questionCategory: questionCategory.name
+            ) { result in
+                switch result {
             case .success:
                 isInterpretationGenerated = true
             case .failure(let error):
@@ -194,15 +194,16 @@ struct CardReadingView: View {
     // MARK: - Save & Share
     
     private func saveReading() {
-        readingManager.saveReading(
-            clientName: clientName,
-            clientAge: clientAge,
-            questionCategory: questionCategory,
-            question: question,
-            customQuestion: customQuestion,
-            spread: selectedSpread,
-            drawnCards: drawnCards
-        ) { result in
+            sessionManager.saveReading(
+                clientName: clientName,
+                clientAge: clientAge,
+                questionCategory: questionCategory,
+                question: question,
+                customQuestion: customQuestion,
+                spread: selectedSpread,
+                drawnCards: drawnCards,
+                interpretation: sessionManager.interpretation  // Добавьте этот параметр
+            ) { result in
             switch result {
             case .success:
                 print("Расклад сохранен")
