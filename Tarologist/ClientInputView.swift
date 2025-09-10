@@ -29,6 +29,7 @@ struct ClientInputView: View {
     @State private var errorMessage: String?
     @State private var showSupportAlert: Bool = false
     @State private var activeSheet: ActiveSheet?
+    @State private var showingSpreadSelection = false
     
     // Для управления фокусом и клавиатурой
     @FocusState private var focusedField: Field?
@@ -193,6 +194,15 @@ struct ClientInputView: View {
                 }
                 .disabled(!isFormValid)
             )
+            .sheet(isPresented: $showingSpreadSelection) {
+                SpreadSelectionView(
+                    clientName: clientName,
+                    clientAge: clientAge,
+                    questionCategory: selectedCategory!,
+                    question: selectedQuestion,
+                    customQuestion: isUsingCustomQuestion ? customQuestion : nil
+                )
+            }
             .alert("Поддержка", isPresented: $showSupportAlert) {
                 Button("OK", role: .cancel) {}
             } message: {
@@ -252,18 +262,38 @@ struct ClientInputView: View {
     private func startReading() {
         hideKeyboard()
         
-        // TODO: Implement starting a reading session
-        print("Starting reading for client: \(clientName), age: \(clientAge)")
+        // ВАЛИДАЦИЯ ДАННЫХ ПЕРЕД НАЧАЛОМ ГАДАНИЯ:
+        // 1. Проверяем, что выбрана категория вопроса
+        guard let selectedCategory = selectedCategory else {
+            errorMessage = "Выберите категорию вопроса"
+            return
+        }
         
-        if isUsingCustomQuestion, let categoryId = selectedCategory?.id {
-            // Submit custom question for moderation
+        // 2. Проверяем, что выбран или введен вопрос
+        guard isUsingCustomQuestion ? !customQuestion.isEmpty : selectedQuestion != nil else {
+            errorMessage = "Выберите или введите вопрос"
+            return
+        }
+        
+        // 3. Если используется пользовательский вопрос, отправляем его на модерацию
+        if isUsingCustomQuestion {
             questionManager.submitCustomQuestion(
-                categoryId: categoryId,
+                categoryId: selectedCategory.id,
                 questionText: customQuestion
             )
         }
         
-        presentationMode.wrappedValue.dismiss()
+        // 4. Вместо закрытия экрана, открываем экран выбора расклада
+        showingSpreadSelection = true
+        
+        // Логируем начало гадания для отладки
+        print("""
+        Начало гадания для клиента:
+        - Имя: \(clientName)
+        - Возраст: \(clientAge)
+        - Категория: \(selectedCategory.name)
+        - Вопрос: \(isUsingCustomQuestion ? customQuestion : selectedQuestion?.text ?? "")
+        """)
     }
     
     private func hideKeyboard() {

@@ -35,9 +35,22 @@
 		2466DA3D2E427DEE00714BF6 /* TarologistUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = TarologistUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
+/* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
+		24CB03B82E6310FD002E60DB /* Exceptions for "Tarologist" folder in "Tarologist" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				Untitled.swift,
+			);
+			target = 2466DA222E427DEC00714BF6 /* Tarologist */;
+		};
+/* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
+
 /* Begin PBXFileSystemSynchronizedRootGroup section */
 		2466DA252E427DEC00714BF6 /* Tarologist */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+				24CB03B82E6310FD002E60DB /* Exceptions for "Tarologist" folder in "Tarologist" target */,
+			);
 			path = Tarologist;
 			sourceTree = "<group>";
 		};

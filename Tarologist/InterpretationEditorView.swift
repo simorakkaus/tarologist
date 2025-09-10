@@ -12,15 +12,21 @@ import FirebaseFirestore
 struct InterpretationEditorView: View {
     let sessionId: String
     let cards: [TarotCard]
+    let isReversed: [Bool] // Добавляем информацию о положении карт
 
     @State private var interpretations: [String]
     @State private var clientSummary: String = ""
     @State private var isComplete = false
 
-    init(sessionId: String, cards: [TarotCard]) {
+    init(sessionId: String, cards: [TarotCard], isReversed: [Bool]) {
         self.sessionId = sessionId
         self.cards = cards
-        _interpretations = State(initialValue: cards.map { $0.meaning })
+        self.isReversed = isReversed
+        
+        // Используем правильное значение в зависимости от положения карты
+        _interpretations = State(initialValue: zip(cards, isReversed).map { card, reversed in
+            reversed ? card.meaningShadow : card.meaningLight
+        })
     }
 
     var body: some View {
@@ -31,8 +37,14 @@ struct InterpretationEditorView: View {
             ScrollView {
                 ForEach(cards.indices, id: \.self) { index in
                     VStack(alignment: .leading, spacing: 8) {
-                        Text(cards[index].name)
+                        // Используем nameRu вместо name
+                        Text(cards[index].nameRu)
                             .font(.headline)
+                        
+                        // Показываем положение карты
+                        Text(isReversed[index] ? "Перевернутая" : "Прямая")
+                            .font(.subheadline)
+                            .foregroundColor(.secondary)
 
                         TextEditor(text: $interpretations[index])
                             .frame(height: 100)
@@ -40,6 +52,7 @@ struct InterpretationEditorView: View {
                             .background(Color(.systemGray6))
                             .cornerRadius(8)
                     }
+                    .padding(.bottom, 16)
                 }
             }
 
@@ -64,21 +77,31 @@ struct InterpretationEditorView: View {
 
             Spacer()
 
-            NavigationLink(destination: FinalizeReadingView(sessionId: sessionId, summary: clientSummary), isActive: $isComplete) {
+            NavigationLink(
+                destination: FinalizeReadingView(
+                    sessionId: sessionId,
+                    summary: clientSummary
+                ),
+                isActive: $isComplete
+            ) {
                 EmptyView()
             }
         }
         .padding()
     }
 
-    /// Сохраняем толкование в Firestore (опционально, можно позже)
+    /// Сохраняем толкование в Firestore
     private func saveInterpretation() {
         let db = Firestore.firestore()
         let docRef = db.collection("readings").document(sessionId)
 
-        let interpretationData: [[String: String]] = zip(cards, interpretations).map { card, meaning in
-            [
-                "name": card.name,
+        let interpretationData: [[String: Any]] = zip(zip(cards, interpretations), isReversed).map { item, reversed in
+            let (card, meaning) = item
+            return [
+                "cardId": card.id,
+                "nameRu": card.nameRu,
+                "nameEn": card.nameEn,
+                "isReversed": reversed,
                 "meaning": meaning
             ]
         }

@@ -15,6 +15,7 @@ struct TarotReadingView: View {
     let question: String
 
     @State private var cards: [TarotCard] = []
+    @State private var isReversed: [Bool] = [] // Добавляем массив для положений карт
     @State private var isReadyToInterpret = false
 
     var body: some View {
@@ -28,9 +29,10 @@ struct TarotReadingView: View {
             }
 
             ScrollView {
-                ForEach(cards) { card in
+                ForEach(Array(cards.enumerated()), id: \.element.id) { index, card in
                     VStack(alignment: .leading, spacing: 4) {
                         HStack {
+                            // Используем imageName из структуры TarotCard
                             Image(card.imageName)
                                 .resizable()
                                 .frame(width: 80, height: 130)
@@ -38,9 +40,16 @@ struct TarotReadingView: View {
                                 .shadow(radius: 4)
 
                             VStack(alignment: .leading) {
-                                Text(card.name)
+                                Text(card.nameRu) // Используем русское название
                                     .font(.headline)
-                                Text(card.meaning)
+                                
+                                // Показываем положение карты
+                                Text(isReversed[index] ? "Перевернутая" : "Прямая")
+                                    .font(.subheadline)
+                                    .foregroundColor(.secondary)
+                                
+                                // Используем соответствующее значение в зависимости от положения
+                                Text(isReversed[index] ? card.meaningShadow : card.meaningLight)
                                     .font(.subheadline)
                                     .foregroundColor(.gray)
                             }
@@ -54,7 +63,14 @@ struct TarotReadingView: View {
                 }
             }
 
-            NavigationLink(destination: InterpretationEditorView(sessionId: sessionId, cards: cards), isActive: $isReadyToInterpret) {
+            NavigationLink(
+                destination: InterpretationEditorView(
+                    sessionId: sessionId,
+                    cards: cards,
+                    isReversed: isReversed // Передаем массив положений карт
+                ),
+                isActive: $isReadyToInterpret
+            ) {
                 EmptyView()
             }
 
@@ -73,13 +89,15 @@ struct TarotReadingView: View {
         .onAppear(perform: generateCards)
     }
 
-    /// Временно генерируем случайный расклад из 3 карт
+    /// Генерируем случайный расклад из карт
     private func generateCards() {
-        // Здесь можно заменить на настоящую генерацию
-        cards = [
-            TarotCard(id: UUID().uuidString, name: "Шут", meaning: "Новые начинания, свобода", imageName: "fool"),
-            TarotCard(id: UUID().uuidString, name: "Влюблённые", meaning: "Выбор, отношения", imageName: "lovers"),
-            TarotCard(id: UUID().uuidString, name: "Сила", meaning: "Сила духа, внутренняя уверенность", imageName: "strength")
-        ]
+        // Получаем все карты из менеджера
+        let allCards = TarotCardManager.shared.cards
+        
+        // Выбираем случайные карты (например, 3 карты)
+        cards = Array(allCards.shuffled().prefix(3))
+        
+        // Генерируем случайные положения для каждой карты
+        isReversed = cards.map { _ in Bool.random() }
     }
 }

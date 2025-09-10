@@ -217,9 +217,20 @@ struct SessionsListView: View {
     private func markAsSent(_ session: TarotSession) {
         guard let userID = sessionManager.getCurrentUserId() else { return }
         
-        // Создаем обновленную сессию с isSent = true
-        var updatedSession = session
-        updatedSession.isSent = true
+        // Создаем новую сессию с isSent = true
+        let updatedSession = TarotSession(
+            id: session.id,
+            clientName: session.clientName,
+            clientAge: session.clientAge,
+            date: session.date,
+            spreadId: session.spreadId,
+            spreadName: session.spreadName,
+            questionCategoryId: session.questionCategoryId,
+            questionCategoryName: session.questionCategoryName,
+            questionText: session.questionText,
+            interpretation: session.interpretation,
+            isSent: true  // Устанавливаем isSent в true
+        )
         
         TarotSessionManager.shared.updateSession(updatedSession, for: userID) { result in
             switch result {

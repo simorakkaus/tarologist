@@ -41,7 +41,7 @@ class TarotSessionManager {
     func fetchSessions(for userId: String, completion: @escaping (Result<[TarotSession], Error>) -> Void) {
         db.collection("users")
             .document(userId)
-            .collection("sessions")
+            .collection("sessions")  // ← Убедитесь, что это "sessions"
             .order(by: "date", descending: true)
             .getDocuments { snapshot, error in
                 if let error = error {
@@ -56,7 +56,7 @@ class TarotSessionManager {
     
     func updateSession(_ session: TarotSession, for userId: String, completion: @escaping (Result<Void, Error>) -> Void) {
         do {
-            let data = try session.toDictionary()
+            let data = session.toDictionary()
             
             db.collection("users")
                 .document(userId)

@@ -10,22 +10,42 @@ import FirebaseFirestore
 
 /// Модель одной сессии гадания
 struct TarotSession: Identifiable, Codable {
-    var id: String
-    var clientName: String
-    var date: Date
-    var spreadId: String
-    var spreadName: String
-    var aiInterpretation: String?
-    var isSent: Bool
+    let id: String
+    let clientName: String
+    let clientAge: String?
+    let date: Date
+    let spreadId: String
+    let spreadName: String
+    let questionCategoryId: String?
+    let questionCategoryName: String?
+    let questionText: String?
+    let interpretation: String?
+    let isSent: Bool
     
     // Добавляем инициализатор для совместимости с Firestore
-    init(id: String, clientName: String, date: Date, spreadId: String, spreadName: String, aiInterpretation: String? = nil, isSent: Bool = false) {
+    init(
+        id: String,
+        clientName: String,
+        clientAge: String? = nil,
+        date: Date,
+        spreadId: String,
+        spreadName: String,
+        questionCategoryId: String? = nil,
+        questionCategoryName: String? = nil,
+        questionText: String? = nil,
+        interpretation: String? = nil,
+        isSent: Bool = false
+    ) {
         self.id = id
         self.clientName = clientName
+        self.clientAge = clientAge
         self.date = date
         self.spreadId = spreadId
         self.spreadName = spreadName
-        self.aiInterpretation = aiInterpretation
+        self.questionCategoryId = questionCategoryId
+        self.questionCategoryName = questionCategoryName
+        self.questionText = questionText
+        self.interpretation = interpretation
         self.isSent = isSent
     }
     
@@ -41,16 +61,21 @@ struct TarotSession: Identifiable, Codable {
         
         self.id = document.documentID
         self.clientName = clientName
+        self.clientAge = data["clientAge"] as? String
         self.date = timestamp.dateValue()
         self.spreadId = spreadId
         self.spreadName = spreadName
-        self.aiInterpretation = data["aiInterpretation"] as? String
+        self.questionCategoryId = data["questionCategoryId"] as? String
+        self.questionCategoryName = data["questionCategoryName"] as? String
+        self.questionText = data["questionText"] as? String
+        self.interpretation = data["interpretation"] as? String
         self.isSent = data["isSent"] as? Bool ?? false
     }
     
     // Преобразование в словарь для Firestore
     func toDictionary() -> [String: Any] {
         var dict: [String: Any] = [
+            "id": id,
             "clientName": clientName,
             "date": Timestamp(date: date),
             "spreadId": spreadId,
@@ -58,10 +83,45 @@ struct TarotSession: Identifiable, Codable {
             "isSent": isSent
         ]
         
-        if let interpretation = aiInterpretation {
-            dict["aiInterpretation"] = interpretation
+        if let clientAge = clientAge {
+            dict["clientAge"] = clientAge
+        }
+        
+        if let questionCategoryId = questionCategoryId {
+            dict["questionCategoryId"] = questionCategoryId
+        }
+        
+        if let questionCategoryName = questionCategoryName {
+            dict["questionCategoryName"] = questionCategoryName
+        }
+        
+        if let questionText = questionText {
+            dict["questionText"] = questionText
+        }
+        
+        if let interpretation = interpretation {
+            dict["interpretation"] = interpretation
         }
         
         return dict
+    }
+}
+
+// Расширение для удобства отображения в UI
+extension TarotSession {
+    /// Краткое описание сессии для отображения в списке
+    var shortDescription: String {
+        if let questionText = questionText {
+            return "\(spreadName) - \(questionText)"
+        }
+        return spreadName
+    }
+    
+    /// Форматированная дата сессии
+    var formattedDate: String {
+        let formatter = DateFormatter()
+        formatter.dateStyle = .medium
+        formatter.timeStyle = .short
+        return formatter.string(from: date)
     }
 }

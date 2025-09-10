@@ -56,7 +56,7 @@ struct SessionDetailView: View {
                 .shadow(color: Color.black.opacity(0.1), radius: 5, x: 0, y: 2)
                 
                 // Толкование
-                if let interpretation = session.aiInterpretation, !interpretation.isEmpty {
+                if let interpretation = session.interpretation, !interpretation.isEmpty {
                     VStack(alignment: .leading, spacing: 12) {
                         Text("Толкование")
                             .font(.headline)
@@ -234,7 +234,7 @@ struct SessionDetailView: View {
         content += "Дата: \(formattedDate(session.date))\n"
         content += "Расклад: \(session.spreadName)\n\n"
         
-        if let interpretation = session.aiInterpretation {
+        if let interpretation = session.interpretation {
             content += "Толкование:\n\(interpretation)"
         } else {
             content += "Толкование отсутствует"
@@ -336,7 +336,7 @@ struct ShareSheet: UIViewControllerRepresentable {
             date: Date(),
             spreadId: "three-card",
             spreadName: "Расклад на три карты",
-            aiInterpretation: "Это пример толкования, которое может быть сгенерировано ИИ для данной сессии гадания. Карты показывают...",
+            interpretation: "Это пример толкования, которое может быть сгенерировано ИИ для данной сессии гадания. Карты показывают...",
             isSent: false
         ))
         .environmentObject(SessionManager())
