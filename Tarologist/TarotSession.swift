@@ -50,26 +50,34 @@ struct TarotSession: Identifiable, Codable {
     }
     
     // Добавляем инициализатор из Firestore документа
+    // Убедитесь, что у вас есть такой инициализатор в TarotSession
     init?(document: QueryDocumentSnapshot) {
         let data = document.data()
-        guard let clientName = data["clientName"] as? String,
-              let timestamp = data["date"] as? Timestamp,
+        
+        guard let id = data["id"] as? String,
+              let clientName = data["clientName"] as? String,
+              let clientAge = data["clientAge"] as? String,
+              let date = data["date"] as? Timestamp,
               let spreadId = data["spreadId"] as? String,
-              let spreadName = data["spreadName"] as? String else {
+              let spreadName = data["spreadName"] as? String,
+              let questionCategoryId = data["questionCategoryId"] as? String,
+              let questionCategoryName = data["questionCategoryName"] as? String,
+              let interpretation = data["interpretation"] as? String,
+              let isSent = data["isSent"] as? Bool else {
             return nil
         }
         
-        self.id = document.documentID
+        self.id = id
         self.clientName = clientName
-        self.clientAge = data["clientAge"] as? String
-        self.date = timestamp.dateValue()
+        self.clientAge = clientAge
+        self.date = date.dateValue()
         self.spreadId = spreadId
         self.spreadName = spreadName
-        self.questionCategoryId = data["questionCategoryId"] as? String
-        self.questionCategoryName = data["questionCategoryName"] as? String
+        self.questionCategoryId = questionCategoryId
+        self.questionCategoryName = questionCategoryName
         self.questionText = data["questionText"] as? String
-        self.interpretation = data["interpretation"] as? String
-        self.isSent = data["isSent"] as? Bool ?? false
+        self.interpretation = interpretation
+        self.isSent = isSent
     }
     
     // Преобразование в словарь для Firestore

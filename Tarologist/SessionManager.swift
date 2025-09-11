@@ -203,4 +203,27 @@ class SessionManager: ObservableObject {
                 }
             }
     }
+    
+    // MARK: - Real-time Listeners
+
+    func startSessionsListener(for userId: String, completion: @escaping (Result<[TarotSession], Error>) -> Void) -> ListenerRegistration {
+        return db.collection("users")
+            .document(userId)
+            .collection("sessions")
+            .order(by: "date", descending: true)
+            .addSnapshotListener { snapshot, error in
+                if let error = error {
+                    completion(.failure(error))
+                    return
+                }
+                
+                guard let snapshot = snapshot else {
+                    completion(.success([]))
+                    return
+                }
+                
+                let sessions = snapshot.documents.compactMap { TarotSession(document: $0) }
+                completion(.success(sessions))
+            }
+    }
 }

@@ -19,6 +19,7 @@ struct SessionsListView: View {
     @State private var errorMessage: String?
     @State private var showingNewSession = false
     @State private var searchText = ""
+    @State private var listener: ListenerRegistration?
     
     // Фильтрация по статусу отправки
     enum FilterType {
@@ -47,7 +48,7 @@ struct SessionsListView: View {
             // Поиск и фильтры
             VStack(spacing: 12) {
                 SearchBar(text: $searchText, placeholder: "Поиск по клиентам")
-                    .padding(.horizontal)
+//                    .padding(.horizontal)
                 
                 HStack {
                     FilterButton(title: "Все", isSelected: filterType == .all) {
@@ -61,6 +62,8 @@ struct SessionsListView: View {
                     FilterButton(title: "Не отправлено", isSelected: filterType == .notSent) {
                         filterType = .notSent
                     }
+                    
+                    Spacer()
                 }
                 .padding(.horizontal)
             }
@@ -148,7 +151,7 @@ struct SessionsListView: View {
                 }
                 .listStyle(PlainListStyle())
                 .refreshable {
-                    fetchSessions()
+                    fetchSessions() // Используем ручной запрос для обновления
                 }
             }
         }
@@ -166,12 +169,53 @@ struct SessionsListView: View {
             ClientInputView()
         }
         .onAppear {
-            fetchSessions()
+            startListening()
+        }
+        .onDisappear {
+            stopListening() // Останавливаем listener при закрытии view
         }
     }
     
+    // MARK: - Real-time Listener
+        
+        private func startListening() {
+            guard let userID = authManager.getCurrentUserId() else {
+                self.errorMessage = "Пользователь не авторизован"
+                self.isLoading = false
+                return
+            }
+            
+            isLoading = true
+            errorMessage = nil
+            
+            // Останавливаем предыдущий listener, если он есть
+            stopListening()
+            
+            // Запускаем real-time listener
+            listener = SessionManager.shared.startSessionsListener(for: userID) { result in
+                DispatchQueue.main.async {
+                    self.isLoading = false
+                    
+                    switch result {
+                    case .success(let sessions):
+                        withAnimation {
+                            self.sessions = sessions
+                        }
+                    case .failure(let error):
+                        self.errorMessage = error.localizedDescription
+                    }
+                }
+            }
+        }
+        
+        private func stopListening() {
+            listener?.remove()
+            listener = nil
+        }
+    
     // MARK: - Загрузка сессий из Firestore
     
+    // Оставляем fetchSessions для ручного обновления (pull to refresh)
     private func fetchSessions() {
         guard let userID = authManager.getCurrentUserId() else {
             self.errorMessage = "Пользователь не авторизован"
@@ -188,7 +232,9 @@ struct SessionsListView: View {
                 
                 switch result {
                 case .success(let sessions):
-                    self.sessions = sessions
+                    withAnimation {
+                        self.sessions = sessions
+                    }
                 case .failure(let error):
                     self.errorMessage = error.localizedDescription
                 }
@@ -244,6 +290,8 @@ struct SessionsListView: View {
             }
         }
     }
+    
+    
 }
 
 // MARK: - Вспомогательные компоненты
@@ -261,11 +309,34 @@ struct SessionRow: View {
                 Spacer()
                 
                 if session.isSent {
-                    Image(systemName: "checkmark.circle.fill")
+                    Text("Отправлено")
+                        .font(.caption2)
+                        .fontWeight(.semibold)
+                        .padding(.horizontal, 8)
+                        .padding(.vertical, 4)
+                        .background(Color.green.opacity(0.2))
                         .foregroundColor(.green)
-                        .font(.system(size: 14))
+                        .cornerRadius(8)
+                } else {
+                    Text("Не отправлено")
+                        .font(.caption2)
+                        .fontWeight(.semibold)
+                        .padding(.horizontal, 8)
+                        .padding(.vertical, 4)
+                        .background(Color.gray.opacity(0.2))
+                        .foregroundColor(.gray)
+                        .cornerRadius(8)
                 }
             }
+            
+            Text(session.questionText ?? "")
+                        .font(.body)
+                        .foregroundColor(.primary)
+                        .lineLimit(2)
+            
+            Text(session.questionCategoryName ?? "")
+                        .font(.subheadline)
+                        .foregroundColor(.secondary)
             
             Text(session.spreadName)
                 .font(.subheadline)
