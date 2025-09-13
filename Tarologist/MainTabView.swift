@@ -16,8 +16,8 @@ struct MainTabView: View {
                 SessionsListView()
             }
             .tabItem {
-                Image(systemName: "plus.square.on.square")
-                Text("Гадание")
+                Image(systemName: "moon.stars.fill")
+                Text("Гадания")
             }
 
             /// Вторая вкладка — профиль, управление подпиской и выход

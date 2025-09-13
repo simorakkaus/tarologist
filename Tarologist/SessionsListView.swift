@@ -12,7 +12,7 @@ import FirebaseFirestore
 /// Экран списка прошлых сессий гадания
 struct SessionsListView: View {
     @EnvironmentObject private var authManager: AuthManager
-    // FirestoreService будет добавлен позже
+    @Environment(\.presentationMode) var presentationMode
     
     @State private var sessions: [TarotSession] = []
     @State private var isLoading = true
@@ -20,6 +20,8 @@ struct SessionsListView: View {
     @State private var showingNewSession = false
     @State private var searchText = ""
     @State private var listener: ListenerRegistration?
+    @State private var selectedSession: TarotSession?
+    @State private var showSessionDetail = false
     
     // Фильтрация по статусу отправки
     enum FilterType {
@@ -44,178 +46,208 @@ struct SessionsListView: View {
     }
     
     var body: some View {
-        VStack(spacing: 0) {
-            // Поиск и фильтры
-            VStack(spacing: 12) {
-                SearchBar(text: $searchText, placeholder: "Поиск по клиентам")
-//                    .padding(.horizontal)
-                
+        ZStack {
+            Color(.systemGroupedBackground)
+                .edgesIgnoringSafeArea(.all)
+            
+            VStack(spacing: 0) {
+                // Кастомная навигационная панель
                 HStack {
-                    FilterButton(title: "Все", isSelected: filterType == .all) {
-                        filterType = .all
-                    }
                     
-                    FilterButton(title: "Отправлено", isSelected: filterType == .sent) {
-                        filterType = .sent
-                    }
-                    
-                    FilterButton(title: "Не отправлено", isSelected: filterType == .notSent) {
-                        filterType = .notSent
-                    }
+                    Text("Гадания")
+                        .font(.system(size: 34, weight: .bold)) // Размер и вес как у largeTitle
+                        .foregroundColor(.primary)
                     
                     Spacer()
+                    
+                    Button(action: {
+                        showingNewSession = true
+                    }) {
+                        Image(systemName: "moon.stars.fill")
+                            .font(.system(size: 22, weight: .medium))
+                            .foregroundColor(.white)
+                            .frame(width: 50, height: 50)
+                            .background(
+                                LinearGradient(
+                                    gradient: Gradient(colors: [Color.blue, Color.accentColor]),
+                                    startPoint: .topLeading,
+                                    endPoint: .bottomTrailing
+                                )
+                            )
+                            .clipShape(Circle())
+                            .shadow(color: Color.accentColor.opacity(0.3), radius: 5, x: 0, y: 3)
+                    }
+                    .accessibility(label: Text("Новое гадание"))
                 }
                 .padding(.horizontal)
-            }
-            .padding(.vertical, 12)
-            .background(Color(.systemBackground))
-            
-            // Список сессий
-            if isLoading {
-                ProgressView("Загрузка гаданий...")
-                    .frame(maxWidth: .infinity, maxHeight: .infinity)
-            } else if let error = errorMessage {
-                VStack(spacing: 16) {
-                    Image(systemName: "exclamationmark.triangle")
-                        .font(.system(size: 40))
-                        .foregroundColor(.orange)
+                .padding(.top, 16)
+                .padding(.bottom, 12)
+                .background(Color(.systemBackground))
+                
+                // Поиск и фильтры
+                VStack(spacing: 12) {
+                    SearchBar(text: $searchText, placeholder: "Поиск по клиентам")
                     
-                    Text("Ошибка загрузки")
-                        .font(.headline)
-                    
-                    Text(error)
-                        .font(.subheadline)
-                        .foregroundColor(.secondary)
-                        .multilineTextAlignment(.center)
-                    
-                    Button("Повторить") {
-                        fetchSessions()
-                    }
-                    .buttonStyle(.bordered)
-                }
-                .padding()
-                .frame(maxWidth: .infinity, maxHeight: .infinity)
-            } else if filteredSessions.isEmpty {
-                VStack(spacing: 16) {
-                    Image(systemName: "doc.text.magnifyingglass")
-                        .font(.system(size: 40))
-                        .foregroundColor(.secondary)
-                    
-                    if searchText.isEmpty && filterType == .all {
-                        Text("Нет сохраненных гаданий")
-                            .font(.headline)
-                        
-                        Text("Начните новое гадание")
-                            .font(.subheadline)
-                            .foregroundColor(.secondary)
-                        
-                        Button("Новое гадание") {
-                            showingNewSession = true
-                        }
-                        .buttonStyle(.borderedProminent)
-                        .padding(.top)
-                    } else {
-                        Text("Гаданий не найдено")
-                            .font(.headline)
-                        
-                        Text("Попробуйте изменить поиск или фильтры")
-                            .font(.subheadline)
-                            .foregroundColor(.secondary)
-                    }
-                }
-                .padding()
-                .frame(maxWidth: .infinity, maxHeight: .infinity)
-            } else {
-                List {
-                    ForEach(filteredSessions) { session in
-                        NavigationLink(destination: SessionDetailView(session: session)) {
-                            SessionRow(session: session)
-                        }
-                        .swipeActions(edge: .trailing, allowsFullSwipe: false) {
-                            Button(role: .destructive) {
-                                deleteSession(session)
-                            } label: {
-                                Label("Удалить", systemImage: "trash")
+                    ScrollView(.horizontal, showsIndicators: false) {
+                        HStack(spacing: 8) {
+                            FilterButton(title: "Все", isSelected: filterType == .all) {
+                                filterType = .all
                             }
                             
-                            if !session.isSent {
-                                Button {
-                                    markAsSent(session)
-                                } label: {
-                                    Label("Отметить отправленным", systemImage: "checkmark")
-                                }
-                                .tint(.green)
+                            FilterButton(title: "Отправлено", isSelected: filterType == .sent) {
+                                filterType = .sent
+                            }
+                            
+                            FilterButton(title: "Не отправлено", isSelected: filterType == .notSent) {
+                                filterType = .notSent
                             }
                         }
+                        .padding(.horizontal)
                     }
                 }
-                .listStyle(PlainListStyle())
-                .refreshable {
-                    fetchSessions() // Используем ручной запрос для обновления
-                }
-            }
-        }
-        .navigationTitle("История гаданий")
-        .navigationBarTitleDisplayMode(.large)
-        .toolbar {
-            ToolbarItem(placement: .navigationBarTrailing) {
-                Button(action: { showingNewSession = true }) {
-                    Image(systemName: "plus")
-                        .font(.headline)
+                .padding(.vertical, 12)
+                .background(Color(.systemBackground))
+                
+                // Список сессий
+                if isLoading {
+                    Spacer()
+                    ProgressView("Загрузка гаданий...")
+                    Spacer()
+                } else if let error = errorMessage {
+                    Spacer()
+                    VStack(spacing: 16) {
+                        Image(systemName: "exclamationmark.triangle")
+                            .font(.system(size: 40))
+                            .foregroundColor(.orange)
+                        
+                        Text("Ошибка загрузки")
+                            .font(.headline)
+                        
+                        Text(error)
+                            .font(.subheadline)
+                            .foregroundColor(.secondary)
+                            .multilineTextAlignment(.center)
+                        
+                        Button("Повторить") {
+                            fetchSessions()
+                        }
+                        .buttonStyle(.bordered)
+                    }
+                    .padding()
+                    Spacer()
+                } else if filteredSessions.isEmpty {
+                    Spacer()
+                    VStack(spacing: 16) {
+                        Image(systemName: "doc.text.magnifyingglass")
+                            .font(.system(size: 40))
+                            .foregroundColor(.secondary)
+                        
+                        if searchText.isEmpty && filterType == .all {
+                            Text("Нет сохраненных гаданий")
+                                .font(.headline)
+                            
+                            Text("Начните новое гадание")
+                                .font(.subheadline)
+                                .foregroundColor(.secondary)
+                            
+                            Button("Новое гадание") {
+                                showingNewSession = true
+                            }
+                            .buttonStyle(.borderedProminent)
+                            .padding(.top)
+                        } else {
+                            Text("Гаданий не найдено")
+                                .font(.headline)
+                            
+                            Text("Попробуйте изменить поиск или фильтры")
+                                .font(.subheadline)
+                                .foregroundColor(.secondary)
+                        }
+                    }
+                    .padding()
+                    Spacer()
+                } else {
+                    ScrollView {
+                        LazyVStack(spacing: 12) {
+                            ForEach(filteredSessions) { session in
+                                SessionRow(session: session)
+                                    .contentShape(Rectangle())
+                                    .onTapGesture {
+                                        selectedSession = session
+                                        showSessionDetail = true
+                                    }
+                                    .padding(.horizontal)
+                                    .padding(.vertical, 12)
+                                    .background(Color(.systemBackground))
+                                    .cornerRadius(12)
+                                    .shadow(color: Color.black.opacity(0.05), radius: 2, x: 0, y: 1)
+                            }
+                        }
+                        .padding(.horizontal)
+                        .padding(.vertical, 8)
+                    }
+                    .refreshable {
+                        fetchSessions()
+                    }
                 }
             }
         }
         .sheet(isPresented: $showingNewSession) {
             ClientInputView()
         }
+        .fullScreenCover(isPresented: $showSessionDetail) {
+            if let session = selectedSession {
+                SessionDetailView(session: session)
+            }
+        }
         .onAppear {
             startListening()
         }
         .onDisappear {
-            stopListening() // Останавливаем listener при закрытии view
+            stopListening()
         }
+        .navigationBarHidden(true)
     }
     
     // MARK: - Real-time Listener
         
-        private func startListening() {
-            guard let userID = authManager.getCurrentUserId() else {
-                self.errorMessage = "Пользователь не авторизован"
+    private func startListening() {
+        guard let userID = authManager.getCurrentUserId() else {
+            self.errorMessage = "Пользователь не авторизован"
+            self.isLoading = false
+            return
+        }
+        
+        isLoading = true
+        errorMessage = nil
+        
+        // Останавливаем предыдущий listener, если он есть
+        stopListening()
+        
+        // Запускаем real-time listener
+        listener = SessionManager.shared.startSessionsListener(for: userID) { result in
+            DispatchQueue.main.async {
                 self.isLoading = false
-                return
-            }
-            
-            isLoading = true
-            errorMessage = nil
-            
-            // Останавливаем предыдущий listener, если он есть
-            stopListening()
-            
-            // Запускаем real-time listener
-            listener = SessionManager.shared.startSessionsListener(for: userID) { result in
-                DispatchQueue.main.async {
-                    self.isLoading = false
-                    
-                    switch result {
-                    case .success(let sessions):
-                        withAnimation {
-                            self.sessions = sessions
-                        }
-                    case .failure(let error):
-                        self.errorMessage = error.localizedDescription
+                
+                switch result {
+                case .success(let sessions):
+                    withAnimation {
+                        self.sessions = sessions
                     }
+                case .failure(let error):
+                    self.errorMessage = error.localizedDescription
                 }
             }
         }
+    }
         
-        private func stopListening() {
-            listener?.remove()
-            listener = nil
-        }
+    private func stopListening() {
+        listener?.remove()
+        listener = nil
+    }
     
     // MARK: - Загрузка сессий из Firestore
     
-    // Оставляем fetchSessions для ручного обновления (pull to refresh)
     private func fetchSessions() {
         guard let userID = authManager.getCurrentUserId() else {
             self.errorMessage = "Пользователь не авторизован"
@@ -275,7 +307,7 @@ struct SessionsListView: View {
             questionCategoryName: session.questionCategoryName,
             questionText: session.questionText,
             interpretation: session.interpretation,
-            isSent: true  // Устанавливаем isSent в true
+            isSent: true
         )
         
         SessionManager.shared.updateSession(updatedSession, for: userID) { result in
@@ -290,8 +322,6 @@ struct SessionsListView: View {
             }
         }
     }
-    
-    
 }
 
 // MARK: - Вспомогательные компоненты
@@ -301,13 +331,18 @@ struct SessionRow: View {
     let session: TarotSession
     
     var body: some View {
-        VStack(alignment: .leading, spacing: 8) {
-            HStack {
-                Text(session.clientName)
-                    .font(.headline)
+        VStack(alignment: .leading, spacing: 12) {
+            HStack(alignment: .top) {
+                VStack(alignment: .leading, spacing: 4) {
+                    Text("\(session.clientName), \(session.clientAge!)")
+                        .font(.headline)
+                        .foregroundColor(.primary)
+                    
+                }
                 
                 Spacer()
                 
+                // Статус отправки
                 if session.isSent {
                     Text("Отправлено")
                         .font(.caption2)
@@ -323,21 +358,28 @@ struct SessionRow: View {
                         .fontWeight(.semibold)
                         .padding(.horizontal, 8)
                         .padding(.vertical, 4)
-                        .background(Color.gray.opacity(0.2))
-                        .foregroundColor(.gray)
+                        .background(Color.orange.opacity(0.2))
+                        .foregroundColor(.orange)
                         .cornerRadius(8)
                 }
             }
             
-            Text(session.questionText ?? "")
-                        .font(.body)
-                        .foregroundColor(.primary)
-                        .lineLimit(2)
+            // Текст вопроса
+            if let questionText = session.questionText, !questionText.isEmpty {
+                Text(questionText)
+                    .font(.body)
+                    .foregroundColor(.primary)
+                    .lineLimit(3)
+            }
             
-            Text(session.questionCategoryName ?? "")
-                        .font(.subheadline)
-                        .foregroundColor(.secondary)
+            // Категория вопроса
+            if let category = session.questionCategoryName, !category.isEmpty {
+                Text(category)
+                    .font(.subheadline)
+                    .foregroundColor(.secondary)
+            }
             
+            // Название расклада
             Text(session.spreadName)
                 .font(.subheadline)
                 .foregroundColor(.secondary)
@@ -345,8 +387,17 @@ struct SessionRow: View {
             Text(formattedDate(session.date))
                 .font(.caption)
                 .foregroundColor(.secondary)
+            
+            // Кнопка "Подробнее"
+            HStack {
+                Spacer()
+                Text("Подробнее →")
+                    .font(.subheadline)
+                    .foregroundColor(.blue)
+            }
+            .padding(.top, 4)
         }
-        .padding(.vertical, 4)
+        .contentShape(Rectangle())
     }
     
     private func formattedDate(_ date: Date) -> String {
@@ -368,7 +419,7 @@ struct SearchBar: View {
                 .foregroundColor(.secondary)
             
             TextField(placeholder, text: $text)
-                .textFieldStyle(PlainTextFieldStyle())
+                .textFieldStyle(.plain)
                 .disableAutocorrection(true)
             
             if !text.isEmpty {
@@ -394,7 +445,7 @@ struct FilterButton: View {
     var body: some View {
         Button(action: action) {
             Text(title)
-                .font(.caption)
+                .font(.caption2)
                 .fontWeight(isSelected ? .semibold : .regular)
                 .padding(.horizontal, 12)
                 .padding(.vertical, 6)
