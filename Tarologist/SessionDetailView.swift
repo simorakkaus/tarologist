@@ -11,15 +11,17 @@ import FirebaseFirestore
 struct SessionDetailView: View {
     let session: TarotSession
     @Environment(\.presentationMode) var presentationMode
-    @EnvironmentObject private var sessionManager: AuthManager
+    @EnvironmentObject private var authManager: AuthManager  // Правильное имя
     @State private var showingDeleteAlert = false
     @State private var showingShareSheet = false
     @State private var showingEditView = false
     @State private var isLoading = false
     
     var body: some View {
+        
         ScrollView {
             VStack(alignment: .leading, spacing: 20) {
+                
                 // Заголовок с информацией о клиенте
                 VStack(alignment: .leading, spacing: 8) {
                     Text(session.clientName)
@@ -182,52 +184,61 @@ struct SessionDetailView: View {
     }
     
     // MARK: - Действия с сессией
-    
     private func markAsSent() {
-        guard let userID = sessionManager.getCurrentUserId() else { return }
-        
-        isLoading = true
-        
-        Firestore.firestore()
-            .collection("users")
-            .document(userID)
-            .collection("sessions")
-            .document(session.id)
-            .updateData(["isSent": true]) { error in
-                isLoading = false
-                
-                if let error = error {
-                    print("Ошибка обновления сессии: \(error.localizedDescription)")
-                    return
-                }
-                
-                // Обновляем локальную сессию и возвращаемся к списку
-                presentationMode.wrappedValue.dismiss()
+            guard let userID = authManager.getCurrentUserId() else {
+                print("Ошибка: пользователь не авторизован")
+                return
             }
-    }
+            
+            isLoading = true
+            print("Отметка сессии \(session.id) как отправленной")
+            
+            Firestore.firestore()
+                .collection("users")
+                .document(userID)
+                .collection("sessions")
+                .document(session.id)
+                .updateData(["isSent": true]) { error in
+                    isLoading = false
+                    
+                    if let error = error {
+                        print("Ошибка обновления сессии: \(error.localizedDescription)")
+                        return
+                    }
+                    
+                    print("Сессия успешно отмечена как отправленная")
+                    // Обновляем локальную сессию и возвращаемся к списку
+                    presentationMode.wrappedValue.dismiss()
+                }
+        }
     
     private func deleteSession() {
-        guard let userID = sessionManager.getCurrentUserId() else { return }
-        
-        isLoading = true
-        
-        Firestore.firestore()
-            .collection("users")
-            .document(userID)
-            .collection("sessions")
-            .document(session.id)
-            .delete { error in
-                isLoading = false
-                
-                if let error = error {
-                    print("Ошибка удаления сессии: \(error.localizedDescription)")
-                    return
-                }
-                
-                // Возвращаемся к списку после удаления
-                presentationMode.wrappedValue.dismiss()
+            guard let userID = authManager.getCurrentUserId() else {
+                print("Ошибка: пользователь не авторизован")
+                return
             }
-    }
+            
+            isLoading = true
+            print("Удаление сессии \(session.id)")
+            
+            Firestore.firestore()
+                .collection("users")
+                .document(userID)
+                .collection("sessions")
+                .document(session.id)
+                .delete { error in
+                    isLoading = false
+                    
+                    if let error = error {
+                        print("Ошибка удаления сессии: \(error.localizedDescription)")
+                        return
+                    }
+                    
+                    print("Сессия успешно удалена")
+                    // Возвращаемся к списку после удаления
+                    presentationMode.wrappedValue.dismiss()
+                }
+        }
     
     private func shareContent() -> String {
         var content = "Сессия гадания для \(session.clientName)\n"
@@ -342,3 +353,4 @@ struct ShareSheet: UIViewControllerRepresentable {
         .environmentObject(AuthManager())
     }
 }
+

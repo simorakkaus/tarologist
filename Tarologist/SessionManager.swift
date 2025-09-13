@@ -21,13 +21,13 @@ class SessionManager: ObservableObject {
     
     // MARK: - Session Management
     
-    // ДОБАВЛЕННЫЙ МЕТОД из TarotSessionManager
     func saveSession(_ session: TarotSession, for userId: String, completion: @escaping (Result<String, Error>) -> Void) {
         do {
+            // Используем ID сессии как идентификатор документа
             let ref = db.collection("users")
                 .document(userId)
                 .collection("sessions")
-                .document()
+                .document(session.id)  // Используем существующий ID
             
             let data = try session.toDictionary()
             
@@ -67,7 +67,7 @@ class SessionManager: ObservableObject {
                 .document(userId)
                 .collection("sessions")
                 .document(session.id)
-                .setData(data, merge: true) { error in
+                .setData(data) { error in  // Убрали merge: true для полной замены
                     if let error = error {
                         completion(.failure(error))
                     } else {
@@ -77,6 +77,31 @@ class SessionManager: ObservableObject {
         } catch {
             completion(.failure(error))
         }
+    }
+    
+    func startSessionsListener(for userId: String, completion: @escaping (Result<[TarotSession], Error>) -> Void) -> ListenerRegistration {
+        return db.collection("users")
+            .document(userId)
+            .collection("sessions")
+            .order(by: "date", descending: true)
+            .addSnapshotListener { snapshot, error in
+                if let error = error {
+                    print("Ошибка слушателя сессий: \(error.localizedDescription)")
+                    completion(.failure(error))
+                    return
+                }
+                
+                guard let snapshot = snapshot else {
+                    print("Снимок слушателя сессий пуст")
+                    completion(.success([]))
+                    return
+                }
+                
+                print("Получено \(snapshot.documents.count) сессий через слушатель")
+                let sessions = snapshot.documents.compactMap { TarotSession(document: $0) }
+                print("Успешно инициализировано \(sessions.count) сессий")
+                completion(.success(sessions))
+            }
     }
     
     func deleteSession(_ session: TarotSession, for userId: String, completion: @escaping (Result<Void, Error>) -> Void) {
@@ -204,26 +229,5 @@ class SessionManager: ObservableObject {
             }
     }
     
-    // MARK: - Real-time Listeners
-
-    func startSessionsListener(for userId: String, completion: @escaping (Result<[TarotSession], Error>) -> Void) -> ListenerRegistration {
-        return db.collection("users")
-            .document(userId)
-            .collection("sessions")
-            .order(by: "date", descending: true)
-            .addSnapshotListener { snapshot, error in
-                if let error = error {
-                    completion(.failure(error))
-                    return
-                }
-                
-                guard let snapshot = snapshot else {
-                    completion(.success([]))
-                    return
-                }
-                
-                let sessions = snapshot.documents.compactMap { TarotSession(document: $0) }
-                completion(.success(sessions))
-            }
-    }
+    
 }

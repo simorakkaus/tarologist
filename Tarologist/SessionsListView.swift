@@ -173,6 +173,9 @@ struct SessionsListView: View {
                                 SessionRow(session: session)
                                     .contentShape(Rectangle())
                                     .onTapGesture {
+                                        print("Выбрана сессия ID: \(session.id)")
+                                        print("Клиент: \(session.clientName)")
+                                        print("Расклад: \(session.spreadName)")
                                         selectedSession = session
                                         showSessionDetail = true
                                     }
@@ -195,9 +198,11 @@ struct SessionsListView: View {
         .sheet(isPresented: $showingNewSession) {
             ClientInputView()
         }
-        .fullScreenCover(isPresented: $showSessionDetail) {
+        .sheet(isPresented: $showSessionDetail) {
             if let session = selectedSession {
                 SessionDetailView(session: session)
+            } else {
+                Text("No session selected") // Для отладки
             }
         }
         .onAppear {
@@ -215,11 +220,13 @@ struct SessionsListView: View {
         guard let userID = authManager.getCurrentUserId() else {
             self.errorMessage = "Пользователь не авторизован"
             self.isLoading = false
+            print("Ошибка: пользователь не авторизован")
             return
         }
         
         isLoading = true
         errorMessage = nil
+        print("Запуск слушателя для пользователя: \(userID)")
         
         // Останавливаем предыдущий listener, если он есть
         stopListening()
@@ -231,10 +238,12 @@ struct SessionsListView: View {
                 
                 switch result {
                 case .success(let sessions):
+                    print("Успешно получено \(sessions.count) сессий")
                     withAnimation {
                         self.sessions = sessions
                     }
                 case .failure(let error):
+                    print("Ошибка получения сессий: \(error.localizedDescription)")
                     self.errorMessage = error.localizedDescription
                 }
             }

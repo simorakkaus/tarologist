@@ -49,34 +49,30 @@ struct TarotSession: Identifiable, Codable {
         self.isSent = isSent
     }
     
-    // Добавляем инициализатор из Firestore документа
-    // Убедитесь, что у вас есть такой инициализатор в TarotSession
     init?(document: QueryDocumentSnapshot) {
         let data = document.data()
         
-        guard let id = data["id"] as? String,
-              let clientName = data["clientName"] as? String,
-              let clientAge = data["clientAge"] as? String,
+        // Проверяем только обязательные поля
+        guard let clientName = data["clientName"] as? String,
               let date = data["date"] as? Timestamp,
               let spreadId = data["spreadId"] as? String,
               let spreadName = data["spreadName"] as? String,
-              let questionCategoryId = data["questionCategoryId"] as? String,
-              let questionCategoryName = data["questionCategoryName"] as? String,
-              let interpretation = data["interpretation"] as? String,
               let isSent = data["isSent"] as? Bool else {
+            print("Не удалось инициализировать TarotSession: отсутствуют обязательные поля")
+            print("Данные документа: \(data)")
             return nil
         }
         
-        self.id = id
+        self.id = document.documentID  // Используем ID документа
         self.clientName = clientName
-        self.clientAge = clientAge
+        self.clientAge = data["clientAge"] as? String
         self.date = date.dateValue()
         self.spreadId = spreadId
         self.spreadName = spreadName
-        self.questionCategoryId = questionCategoryId
-        self.questionCategoryName = questionCategoryName
+        self.questionCategoryId = data["questionCategoryId"] as? String
+        self.questionCategoryName = data["questionCategoryName"] as? String
         self.questionText = data["questionText"] as? String
-        self.interpretation = interpretation
+        self.interpretation = data["interpretation"] as? String
         self.isSent = isSent
     }
     

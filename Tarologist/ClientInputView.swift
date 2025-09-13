@@ -183,6 +183,11 @@ struct ClientInputView: View {
                     }
                 }
                 .scrollDismissesKeyboard(.interactively)
+                
+                if questionManager.categories.isEmpty {
+                    ProgressView("Загрузка категорий...")
+                        .scaleEffect(1.5)
+                }
             }
             .navigationTitle("Новое гадание")
             .navigationBarItems(
@@ -236,11 +241,18 @@ struct ClientInputView: View {
                 }
             }
             .onAppear {
-                loadData()
+                questionManager.setupRealTimeListeners()
                 // Автофокус на поле имени при открытии
                 DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
                     focusedField = .clientName
                 }
+            }
+            .onDisappear {
+                questionManager.removeListeners()
+            }
+            .refreshable {
+                questionManager.removeListeners()
+                questionManager.setupRealTimeListeners()
             }
         }
     }

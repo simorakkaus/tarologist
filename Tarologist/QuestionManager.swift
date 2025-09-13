@@ -16,6 +16,74 @@ class QuestionManager: ObservableObject {
     private let db = Firestore.firestore()
     private var cancellables = Set<AnyCancellable>()
     
+    private var categoriesListener: ListenerRegistration?
+    private var questionsListener: ListenerRegistration?
+    
+    func setupRealTimeListeners() {
+        // Удаляем существующие слушатели
+        removeListeners()
+        
+        // Слушатель для категорий
+        categoriesListener = db.collection("questionCategories")
+            .whereField("isActive", isEqualTo: true)
+            .addSnapshotListener { [weak self] snapshot, error in
+                guard let self = self else { return }
+                
+                if let error = error {
+                    print("Error listening to categories: \(error.localizedDescription)")
+                    self.loadCategoriesFromCache()
+                    return
+                }
+                
+                guard let documents = snapshot?.documents else {
+                    print("No category documents")
+                    return
+                }
+                
+                let categories = documents.compactMap { QuestionCategory(document: $0) }
+                print("Categories updated: \(categories.count) items")
+                
+                DispatchQueue.main.async {
+                    self.categories = categories
+                    self.saveCategoriesToCache(categories)
+                }
+            }
+        
+        // Слушатель для вопросов
+        questionsListener = db.collection("questions")
+            .whereField("isActive", isEqualTo: true)
+            .whereField("isApproved", isEqualTo: true)
+            .addSnapshotListener { [weak self] snapshot, error in
+                guard let self = self else { return }
+                
+                if let error = error {
+                    print("Error listening to questions: \(error.localizedDescription)")
+                    self.loadQuestionsFromCache()
+                    return
+                }
+                
+                guard let documents = snapshot?.documents else {
+                    print("No question documents")
+                    return
+                }
+                
+                let questions = documents.compactMap { Question(document: $0) }
+                print("Questions updated: \(questions.count) items")
+                
+                DispatchQueue.main.async {
+                    self.questions = questions
+                    self.saveQuestionsToCache(questions)
+                }
+            }
+    }
+
+    func removeListeners() {
+        categoriesListener?.remove()
+        questionsListener?.remove()
+        categoriesListener = nil
+        questionsListener = nil
+    }
+    
     // MARK: - Load Data
     
     func loadCategoriesAndQuestions(completion: (() -> Void)? = nil) {
@@ -27,20 +95,39 @@ class QuestionManager: ObservableObject {
     }
     
     func loadCategories(completion: (() -> Void)? = nil) {
+        print("Starting categories loading...")
         db.collection("questionCategories")
             .whereField("isActive", isEqualTo: true)
             .getDocuments { snapshot, error in
                 if let error = error {
                     print("Error loading categories: \(error.localizedDescription)")
-                    // Try to load from cache
-                    self.loadCategoriesFromCache()
+                    print("Loading categories from cache...")
+                    DispatchQueue.main.async {
+                        self.loadCategoriesFromCache()
+                    }
                 } else {
+                    print("Successfully loaded from Firestore")
                     let categories = snapshot?.documents.compactMap { QuestionCategory(document: $0) } ?? []
-                    self.categories = categories
-                    self.saveCategoriesToCache(categories)
+                    print("Found \(categories.count) categories")
+                    
+                    // Логируем первые несколько категорий для проверки
+                    for category in categories.prefix(3) {
+                        print("Category: \(category.name), ID: \(category.id)")
+                    }
+                    
+                    DispatchQueue.main.async {
+                        self.categories = categories
+                        self.saveCategoriesToCache(categories)
+                        print("Categories updated in UI")
+                    }
                 }
                 completion?()
             }
+    }
+    
+    func refreshData() {
+        removeListeners()
+        setupRealTimeListeners()
     }
     
     func loadQuestions(completion: (() -> Void)? = nil) {
