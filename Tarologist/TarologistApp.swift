@@ -45,13 +45,7 @@ struct RootViewSwitcher: View {
     var body: some View {
         Group {
             if authManager.isLoading {
-                VStack(spacing: 16) {
-                    ProgressView()
-                        .progressViewStyle(.circular)
-                        .scaleEffect(1.4)
-                    Text("Загрузка…")
-                        .font(.headline)
-                }
+                LoadingScreenView()
             } else {
                 if authManager.isLoggedIn {
                     MainTabView()
