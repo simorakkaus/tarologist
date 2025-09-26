@@ -22,19 +22,15 @@ struct ProfileView: View {
     var body: some View {
         VStack(spacing: 16) {
             if isLoading {
-                ProgressView("Загрузка…")
+                LoadingScreenView()
             } else {
                 Image(systemName: "person.crop.circle.fill")
                     .resizable()
                     .frame(width: 100, height: 100)
                     .foregroundColor(.gray)
 
-                Text("Профиль")
+                Text("Пользователь: \(currentLogin)")
                     .font(.title2)
-
-                Text("Логин: \(currentLogin)")
-                    .font(.subheadline)
-                    .foregroundColor(.secondary)
 
                 Divider().padding(.vertical, 8)
 

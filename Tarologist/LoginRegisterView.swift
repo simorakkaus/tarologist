@@ -24,6 +24,11 @@ struct LoginRegisterView: View {
     
     // MARK: - Body
     var body: some View {
+        
+        
+        
+        
+        
         ScrollView {
             VStack(spacing: 20) {
                 // Заголовок экрана
