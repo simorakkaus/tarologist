@@ -402,7 +402,7 @@ struct ActionsView: View {
                 SpreadPosition(id: "present", name: "Настоящее", description: "Текущее состояние ситуации", order: 2),
                 SpreadPosition(id: "future", name: "Будущее", description: "Возможное развитие событий", order: 3)
             ],
-            imageName: "three_card_spread"
+            imageName: "three_card_spread", isActive: true
         )
     )
 }

@@ -1,10 +1,11 @@
 [
   {
-    "id": "three_card",
-    "name": "Расклад на три карты",
+    "id": "ceJDMC3CN59BTavpeFSv",
+    "name": "Расклад на 3 карты",
     "description": "Простой расклад для понимания прошлого, настоящего и будущего ситуации",
     "numberOfCards": 3,
     "imageName": "three_card_spread",
+    "isActive": true,
     "positions": [
       {
         "id": "past",
@@ -23,75 +24,6 @@
         "name": "Будущее",
         "description": "Возможное развитие событий",
         "order": 3
-      }
-    ]
-  },
-  {
-    "id": "celtic_cross",
-    "name": "Кельтский крест",
-    "description": "Классический расклад для глубокого анализа ситуации",
-    "numberOfCards": 10,
-    "imageName": "celtic_cross_spread",
-    "positions": [
-      {
-        "id": "situation",
-        "name": "Ситуация",
-        "description": "Суть текущей ситуации",
-        "order": 1
-      },
-      {
-        "id": "challenge",
-        "name": "Вызов",
-        "description": "Основное препятствие или вызов",
-        "order": 2
-      },
-      {
-        "id": "foundation",
-        "name": "Основа",
-        "description": "Фундаментальные влияния на ситуацию",
-        "order": 3
-      },
-      {
-        "id": "recent_past",
-        "name": "Недавнее прошлое",
-        "description": "События, которые привели к текущей ситуации",
-        "order": 4
-      },
-      {
-        "id": "possible_outcome",
-        "name": "Возможный исход",
-        "description": "То, что может произойти при текущем развитии событий",
-        "order": 5
-      },
-      {
-        "id": "immediate_future",
-        "name": "Ближайшее будущее",
-        "description": "События, которые произойдут в ближайшее время",
-        "order": 6
-      },
-      {
-        "id": "self_perception",
-        "name": "Восприятие себя",
-        "description": "Как вы видите себя в этой ситуации",
-        "order": 7
-      },
-      {
-        "id": "external_influences",
-        "name": "Внешние влияния",
-        "description": "Факторы, которые вы не можете контролировать",
-        "order": 8
-      },
-      {
-        "id": "hopes_fears",
-        "name": "Надежды и страхи",
-        "description": "Ваши надежды и опасения относительно ситуации",
-        "order": 9
-      },
-      {
-        "id": "final_outcome",
-        "name": "Финальный исход",
-        "description": "Вероятный конечный результат",
-        "order": 10
       }
     ]
   }

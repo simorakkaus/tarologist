@@ -73,14 +73,16 @@ class SpreadManager: ObservableObject {
         }.sorted(by: { $0.order < $1.order })
         
         let imageName = data["imageName"] as? String
-        
+        let isActive = data["isActive"] as? Bool ?? true // По умолчанию true
+
         return Spread(
-            id: id,
+            id: id, // Используем documentID из Firebase как id
             name: name,
             description: description,
             numberOfCards: numberOfCards,
             positions: positions,
-            imageName: imageName
+            imageName: imageName,
+            isActive: isActive
         )
     }
     
