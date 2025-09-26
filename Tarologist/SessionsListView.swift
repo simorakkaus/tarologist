@@ -104,6 +104,7 @@ struct SessionsListView: View {
                         }
                         .padding(.horizontal)
                     }
+                    .scrollDisabled(true)
                 }
                 .padding(.vertical, 12)
                 .background(Color(.systemBackground))

@@ -26,38 +26,41 @@ struct LoginRegisterView: View {
     var body: some View {
         
         
-        
-        
-        
-        ScrollView {
             VStack(spacing: 20) {
                 // Заголовок экрана
                 Text(isLoginMode ? "Вход" : "Регистрация")
                     .font(.title)
                     .padding(.top)
                 
-                // Поле ввода логина
-                TextField("Логин", text: $login)
-                    .textFieldStyle(.roundedBorder)
-                    .textInputAutocapitalization(.never)
-                    .disableAutocorrection(true)
-                    .onChange(of: login) { _ in
-                        errorMessage = nil
-                    }
                 
-                // Поле ввода пароля
-                SecureField("Пароль", text: $password)
-                    .textFieldStyle(.roundedBorder)
-                    .onChange(of: password) { _ in
-                        errorMessage = nil
-                    }
-                
-                // Отображение ошибок
-                if let error = errorMessage {
-                    Text(error)
-                        .foregroundColor(.red)
-                        .fixedSize(horizontal: false, vertical: true)
-                }
+                    
+                        // Поле ввода логина
+                        TextField("Логин", text: $login)
+                            .textFieldStyle(.roundedBorder)
+                            .textInputAutocapitalization(.never)
+                            .disableAutocorrection(true)
+                            
+                            .onChange(of: login) { _ in
+                                errorMessage = nil
+                                
+                            }
+                            
+                        
+                        // Поле ввода пароля
+                        SecureField("Пароль", text: $password)
+                            .textFieldStyle(.roundedBorder)
+                            .onChange(of: password) { _ in
+                                errorMessage = nil
+                            }
+                        
+                        // Отображение ошибок
+                        if let error = errorMessage {
+                            Text(error)
+                                .foregroundColor(.red)
+                                .fixedSize(horizontal: false, vertical: true)
+                        }
+                    
+
                 
                 // Кнопка входа/регистрации
                 Button(action: authenticateUser) {
@@ -110,8 +113,7 @@ struct LoginRegisterView: View {
                 .disabled(isLoading)
             }
             .padding()
-        }
-        .scrollDismissesKeyboard(.interactively)
+
     }
     
     // MARK: - Computed Properties
