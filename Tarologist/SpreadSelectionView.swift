@@ -23,8 +23,7 @@ struct SpreadSelectionView: View {
         NavigationView {
             ZStack {
                 if spreadManager.isLoading {
-                    ProgressView("Загрузка раскладов...")
-                        .frame(maxWidth: .infinity, maxHeight: .infinity)
+                    LoadingScreenView()
                 } else if let error = spreadManager.errorMessage {
                     VStack(spacing: 16) {
                         Image(systemName: "exclamationmark.triangle")

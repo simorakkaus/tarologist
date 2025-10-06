@@ -7,7 +7,6 @@
 
 import SwiftUI
 import FirebaseCore
-import FirebaseAuth
 import FirebaseFirestore
 
 @main
@@ -38,22 +37,3 @@ class AppDelegate: NSObject, UIApplicationDelegate {
         return true
     }
 }
-
-struct RootViewSwitcher: View {
-    @EnvironmentObject var authManager: AuthManager
-
-    var body: some View {
-        Group {
-            if authManager.isLoading {
-                LoadingScreenView()
-            } else {
-                if authManager.isLoggedIn {
-                    MainTabView()
-                } else {
-                    LoginRegisterView()
-                }
-            }
-        }
-    }
-}
-
