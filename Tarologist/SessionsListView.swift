@@ -27,6 +27,7 @@ struct SessionsListView: View {
     enum FilterType {
         case all, sent, notSent
     }
+    
     @State private var filterType: FilterType = .all
     
     var filteredSessions: [TarotSession] {
@@ -44,6 +45,10 @@ struct SessionsListView: View {
             return filtered.filter { $0.clientName.localizedCaseInsensitiveContains(searchText) }
         }
     }
+    
+//    var body: some View {
+//        
+//    }
     
     var body: some View {
         ZStack {

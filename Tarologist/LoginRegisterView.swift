@@ -25,178 +25,100 @@ struct LoginRegisterView: View {
     var body: some View {
         NavigationStack {
             
-            VStack(spacing: 20) {
-                Spacer()
-                Image(systemName: "moon.stars.fill")
-                    .symbolRenderingMode(.hierarchical)
-                    .font(.system(size: 60))
-                    .foregroundColor(.blue)
-                Form {
-                    Section {
-                        TextField("Логин", text: $login)
-                            .textInputAutocapitalization(.never)
-                            .disableAutocorrection(true)
-                            .onChange(of: login) { _ in
-                                errorMessage = nil
-                            }
-                        SecureField("Пароль", text: $password)
-                            .onChange(of: password) { _ in
-                                errorMessage = nil
-                        }
-                        if let error = errorMessage {
-                            Text(error)
-                                .foregroundColor(.red)
-                                .fixedSize(horizontal: false, vertical: true)
-                        }
-                    }
-                    footer: {
-                        if isLoginMode {
-                            Button("Забыли пароль?") {
-                                showSupportOptions.toggle()
-                            }
-                            .padding(.top, 10)
-                            .confirmationDialog("Восстановление доступа", isPresented: $showSupportOptions) {
-                                Button("Восстановить через поддержку") {
-                                    requestAccessRecovery()
+ 
+                VStack(spacing: 20) {
+
+                                Spacer()
+                                Image(systemName: "moon.stars.fill")
+                                    .symbolRenderingMode(.hierarchical)
+                                    .font(.system(size: 60))
+                                    .foregroundColor(.blue)
+                                Form {
+                                    Section {
+                                        TextField("Логин", text: $login)
+                                            .textInputAutocapitalization(.never)
+                                            .disableAutocorrection(true)
+                                            .onChange(of: login) { _ in
+                                                errorMessage = nil
+                                            }
+                                        SecureField("Пароль", text: $password)
+                                            .onChange(of: password) { _ in
+                                                errorMessage = nil
+                                            }
+                                        if let error = errorMessage {
+                                            Text(error)
+                                                .foregroundColor(.red)
+                                                .fixedSize(horizontal: false, vertical: true)
+                                        }
+                                    }
+                                    footer: {
+                                        if isLoginMode {
+                                            Button("Забыли пароль?") {
+                                                showSupportOptions.toggle()
+                                            }
+                                            .padding(.top, 10)
+                                            .confirmationDialog("Восстановление доступа", isPresented: $showSupportOptions) {
+                                                Button("Восстановить через поддержку") {
+                                                    requestAccessRecovery()
+                                                }
+                                                Button("Связаться с поддержкой") {
+                                                    contactSupport()
+                                                }
+                                                Button("Отмена", role: .cancel) {}
+                                            } message: {
+                                                Text("Выберите способ восстановления доступа к аккаунту")
+                                            }
+                                        }
+                                    }
+                                    .listRowBackground(Color(.systemGroupedBackground))
                                 }
-                                Button("Связаться с поддержкой") {
-                                    contactSupport()
-                                }
-                                Button("Отмена", role: .cancel) {}
-                            } message: {
-                                Text("Выберите способ восстановления доступа к аккаунту")
+                                .frame(width: .infinity, height: 180)
+                                .scrollDisabled(true)
+                                .scrollContentBackground(.hidden)
+                                .background(Color.clear)
+                                
+                                    Button(action: authenticateUser) {
+                                        Text(isLoginMode ? "Войти" : "Зарегистрироваться")
+                                            .frame(maxWidth: .infinity, minHeight: 44)
+                                            .contentShape(Rectangle())
+                                            .bold()
+                                    }
+                                    .buttonStyle(.borderedProminent)
+                                    .padding(.horizontal, 20)
+                                    .disabled(isLoading || !isFormValid)
+                                
+                                Button(isLoginMode ? "Нет аккаунта? Зарегистрироваться" : "Уже есть аккаунт? Войти") {switchAuthMode()}
+                                    .padding(.top, 10)
+                                    .disabled(isLoading)
+                                Spacer()
                             }
-                        }
-                    }
-                    .listRowBackground(Color(.systemGroupedBackground))
-                }
-                .frame(width: .infinity, height: 180)
-                .scrollDisabled(true)
-                .scrollContentBackground(.hidden)
-                .background(Color.clear)
-                
-                Button(action: authenticateUser) {
-                
-                    Text(isLoginMode ? "Войти" : "Зарегистрироваться")
-                        .frame(maxWidth: .infinity, minHeight: 44)
-                        .contentShape(Rectangle())
-                        .bold()
-                }
-                .buttonStyle(.borderedProminent)
-                .padding(.horizontal, 20)
-                .disabled(isLoading || !isFormValid)
-                
-                Button(isLoginMode ? "Нет аккаунта? Зарегистрироваться" : "Уже есть аккаунт? Войти") {switchAuthMode()}
-                .padding(.top, 10)
-                .disabled(isLoading)
-                Spacer()
-            }
+                .overlay(
+                            Group {
+                                if isLoading {
+                                    LoadingScreenView()
+                                        .edgesIgnoringSafeArea(.all)
+                                        .background(Color.white)
+                                }
+                            }
+                        )
+            
+
+            
+            
             
             Spacer()
-            .navigationTitle(isLoginMode ? "Вход" : "Регистрация")
-            .toolbar{
-                ToolbarItem(placement: .navigationBarTrailing) {
-                    Button("Нужна помощь?") {
-                        contactSupport()
+                .navigationTitle(isLoginMode ? "Вход" : "Регистрация")
+                .toolbar{
+                    ToolbarItem(placement: .navigationBarTrailing) {
+                        Button("Нужна помощь?") {
+                            contactSupport()
+                        }
                     }
                 }
-            }
         }
     }
     
-    // MARK: - Body
-//    var body: some View {
-//        
-//        
-//            VStack(spacing: 20) {
-//                // Заголовок экрана
-//                Text()
-//                    .font(.title)
-//                    .padding(.top)
-//                
-//                
-//                    
-//                        // Поле ввода логина
-//                        TextField("Логин", text: $login)
-//                            .textFieldStyle(.roundedBorder)
-//                            .textInputAutocapitalization(.never)
-//                            .disableAutocorrection(true)
-//                            
-//                            .onChange(of: login) { _ in
-//                                errorMessage = nil
-//                                
-//                            }
-//                            
-//                        
-//                        // Поле ввода пароля
-//                        SecureField("Пароль", text: $password)
-//                            .textFieldStyle(.roundedBorder)
-//                            .onChange(of: password) { _ in
-//                                errorMessage = nil
-//                            }
-//                        
-//                        // Отображение ошибок
-//                        if let error = errorMessage {
-//                            Text(error)
-//                                .foregroundColor(.red)
-//                                .fixedSize(horizontal: false, vertical: true)
-//                        }
-//                    
-//
-//                
-//                // Кнопка входа/регистрации
-//                Button(action: authenticateUser) {
-//                    HStack {
-//                        if isLoading {
-//                            ProgressView()
-//                                .padding(.trailing, 8)
-//                        }
-//                        Text(isLoginMode ? "Войти" : "Зарегистрироваться")
-//                            .bold()
-//                    }
-//                    .frame(maxWidth: .infinity)
-//                    .padding()
-//                    .background(Color.blue)
-//                    .foregroundColor(.white)
-//                    .cornerRadius(10)
-//                }
-//                .disabled(isLoading || !isFormValid)
-//                
-//                // Переключение между режимами входа и регистрации
-//                Button(isLoginMode ? "Нет аккаунта? Зарегистрироваться" : "Уже есть аккаунт? Войти") {
-//                    switchAuthMode()
-//                }
-//                
-//                // Кнопка восстановления доступа (только в режиме входа)
-//                if isLoginMode {
-//                    Button("Забыли пароль?") {
-//                        showSupportOptions.toggle()
-//                    }
-//                    .padding(.top, 10)
-//                    .confirmationDialog("Восстановление доступа", isPresented: $showSupportOptions) {
-//                        Button("Восстановить через поддержку") {
-//                            requestAccessRecovery()
-//                        }
-//                        Button("Связаться с поддержкой") {
-//                            contactSupport()
-//                        }
-//                        Button("Отмена", role: .cancel) {}
-//                    } message: {
-//                        Text("Выберите способ восстановления доступа к аккаунту")
-//                    }
-//                }
-//                
-//                // Кнопка связи с поддержкой
-//                Button("Нужна помощь?") {
-//                    contactSupport()
-//                }
-//                .padding(.top, 10)
-//                .opacity(isLoading ? 0.5 : 1.0)
-//                .disabled(isLoading)
-//            }
-//            .padding()
-//
-//    }
+    
     
     // MARK: - Computed Properties
     /// Проверяет валидность формы
