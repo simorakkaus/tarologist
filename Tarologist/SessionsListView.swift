@@ -46,179 +46,281 @@ struct SessionsListView: View {
         }
     }
     
-//    var body: some View {
-//        
-//    }
-    
     var body: some View {
-        ZStack {
-            Color(.systemGroupedBackground)
-                .edgesIgnoringSafeArea(.all)
-            
-            VStack(spacing: 0) {
-                // Кастомная навигационная панель
-                HStack {
-                    
-                    Text("Гадания")
-                        .font(.system(size: 34, weight: .bold)) // Размер и вес как у largeTitle
-                        .foregroundColor(.primary)
-                    
-                    Spacer()
-                    
-                    Button(action: {
-                        showingNewSession = true
-                    }) {
-                        Image(systemName: "moon.stars.fill")
-                            .font(.system(size: 22, weight: .medium))
-                            .foregroundColor(.white)
-                            .frame(width: 50, height: 50)
-                            .background(
-                                LinearGradient(
-                                    gradient: Gradient(colors: [Color.blue, Color.accentColor]),
-                                    startPoint: .topLeading,
-                                    endPoint: .bottomTrailing
-                                )
-                            )
-                            .clipShape(Circle())
-                            .shadow(color: Color.accentColor.opacity(0.3), radius: 5, x: 0, y: 3)
-                    }
-                    .accessibility(label: Text("Новое гадание"))
-                }
-                .padding(.horizontal)
-                .padding(.top, 16)
-                .padding(.bottom, 12)
-                .background(Color(.systemBackground))
-                
-                // Поиск и фильтры
-                VStack(spacing: 12) {
-                    SearchBar(text: $searchText, placeholder: "Поиск по клиентам")
-                    
-                    ScrollView(.horizontal, showsIndicators: false) {
-                        HStack(spacing: 8) {
-                            FilterButton(title: "Все", isSelected: filterType == .all) {
-                                filterType = .all
-                            }
-                            
-                            FilterButton(title: "Отправлено", isSelected: filterType == .sent) {
-                                filterType = .sent
-                            }
-                            
-                            FilterButton(title: "Не отправлено", isSelected: filterType == .notSent) {
-                                filterType = .notSent
-                            }
-                        }
-                        .padding(.horizontal)
-                    }
-                    .scrollDisabled(true)
-                }
-                .padding(.vertical, 12)
-                .background(Color(.systemBackground))
-                
-                // Список сессий
-                if isLoading {
-                    Spacer()
-                    ProgressView("Загрузка гаданий...")
-                    Spacer()
-                } else if let error = errorMessage {
-                    Spacer()
-                    VStack(spacing: 16) {
-                        Image(systemName: "exclamationmark.triangle")
-                            .font(.system(size: 40))
-                            .foregroundColor(.orange)
-                        
-                        Text("Ошибка загрузки")
-                            .font(.headline)
-                        
-                        Text(error)
-                            .font(.subheadline)
-                            .foregroundColor(.secondary)
-                            .multilineTextAlignment(.center)
-                        
-                        Button("Повторить") {
-                            fetchSessions()
-                        }
-                        .buttonStyle(.bordered)
-                    }
-                    .padding()
-                    Spacer()
-                } else if filteredSessions.isEmpty {
-                    Spacer()
-                    VStack(spacing: 16) {
-                        Image(systemName: "doc.text.magnifyingglass")
-                            .font(.system(size: 40))
-                            .foregroundColor(.secondary)
-                        
-                        if searchText.isEmpty && filterType == .all {
-                            Text("Нет сохраненных гаданий")
-                                .font(.headline)
-                            
-                            Text("Начните новое гадание")
-                                .font(.subheadline)
-                                .foregroundColor(.secondary)
-                            
-                            Button("Новое гадание") {
-                                showingNewSession = true
-                            }
-                            .buttonStyle(.borderedProminent)
-                            .padding(.top)
-                        } else {
-                            Text("Гаданий не найдено")
-                                .font(.headline)
-                            
-                            Text("Попробуйте изменить поиск или фильтры")
-                                .font(.subheadline)
-                                .foregroundColor(.secondary)
-                        }
-                    }
-                    .padding()
-                    Spacer()
-                } else {
-                    ScrollView {
-                        LazyVStack(spacing: 12) {
-                            ForEach(filteredSessions) { session in
-                                SessionRow(session: session)
-                                    .contentShape(Rectangle())
-                                    .onTapGesture {
-                                        print("Выбрана сессия ID: \(session.id)")
-                                        print("Клиент: \(session.clientName)")
-                                        print("Расклад: \(session.spreadName)")
-                                        selectedSession = session
-                                        showSessionDetail = true
-                                    }
-                                    .padding(.horizontal)
-                                    .padding(.vertical, 12)
-                                    .background(Color(.systemBackground))
-                                    .cornerRadius(12)
-                                    .shadow(color: Color.black.opacity(0.05), radius: 2, x: 0, y: 1)
-                            }
-                        }
-                        .padding(.horizontal)
-                        .padding(.vertical, 8)
-                    }
-                    .refreshable {
-                        fetchSessions()
-                    }
-                }
+        NavigationStack {
+            List {
+                ReadingCardView()
+                    .listRowSeparator(.hidden)
+                    .listRowBackground(Color.clear)
+                ReadingCardView()
+                    .listRowSeparator(.hidden)
+                    .listRowBackground(Color.clear)
+                ReadingCardView()
+                    .listRowSeparator(.hidden)
+                    .listRowBackground(Color.clear)
             }
+            .listStyle(PlainListStyle())
+            .navigationTitle("Мои расклады")
         }
-        .sheet(isPresented: $showingNewSession) {
-            ClientInputView()
-        }
-        .sheet(isPresented: $showSessionDetail) {
-            if let session = selectedSession {
-                SessionDetailView(session: session)
-            } else {
-                Text("No session selected") // Для отладки
-            }
-        }
-        .onAppear {
-            startListening()
-        }
-        .onDisappear {
-            stopListening()
-        }
-        .navigationBarHidden(true)
     }
+    
+    struct ReadingCardView: View {
+        var body: some View {
+            VStack(alignment: .leading, spacing: 8) {
+                HStack {
+                    Text("ИИван, 39")
+                        .font(.title2)
+                        .fontWeight(.bold)
+                    
+                    Spacer()
+                    
+                    Menu {
+                        // дополнительные действия
+                    } label: {
+                        Image(systemName: "ellipsis")
+                            .font(.system(size: 14, weight: .bold))
+                            .foregroundColor(.blue)
+                            .frame(width: 32, height: 32)
+                            .background(Color.gray.opacity(0.2))
+                            .clipShape(Circle())
+                    }
+                }
+                
+                Text("id: skdjhgfjdshfiu636473rg")
+                    .font(.subheadline)
+                    .foregroundColor(.secondary)
+                .padding(.bottom, 16)
+                
+                HStack {
+                    Text("Дата расклада")
+                        .font(.subheadline)
+                        .foregroundColor(.secondary)
+                    
+                    Spacer()
+                    
+                    Text("09.10.2025")
+                        .font(.subheadline)
+                }
+                
+                HStack {
+                    Text("Расклад")
+                        .font(.subheadline)
+                        .foregroundColor(.secondary)
+                    
+                    Spacer()
+                    
+                    Text("Кельтский крест")
+                        .font(.subheadline)
+                }
+                
+                HStack {
+                    Text("Формат отправки")
+                        .font(.subheadline)
+                        .foregroundColor(.secondary)
+                    
+                    Spacer()
+                    
+                    Text("Голосовое")
+                        .font(.subheadline)
+                }
+                
+                HStack {
+                    Text("Канал отправки")
+                        .font(.subheadline)
+                        .foregroundColor(.secondary)
+                    
+                    Spacer()
+                    
+                    Text("Inst")
+                        .font(.subheadline)
+                }
+                
+                HStack {
+                    Text("Статус отправки")
+                        .font(.subheadline)
+                        .foregroundColor(.secondary)
+                    
+                    Spacer()
+                    
+                    Text("Отправлен")
+                        .font(.subheadline)
+                        .foregroundColor(.green)
+                }
+            }
+            
+            Divider()
+        }
+    }
+    
+//    var body: some View {
+//        ZStack {
+//            Color(.systemGroupedBackground)
+//                .edgesIgnoringSafeArea(.all)
+//            
+//            VStack(spacing: 0) {
+//                // Кастомная навигационная панель
+//                HStack {
+//                    
+//                    Text("Гадания")
+//                        .font(.system(size: 34, weight: .bold)) // Размер и вес как у largeTitle
+//                        .foregroundColor(.primary)
+//                    
+//                    Spacer()
+//                    
+//                    Button(action: {
+//                        showingNewSession = true
+//                    }) {
+//                        Image(systemName: "moon.stars.fill")
+//                            .font(.system(size: 22, weight: .medium))
+//                            .foregroundColor(.white)
+//                            .frame(width: 50, height: 50)
+//                            .background(
+//                                LinearGradient(
+//                                    gradient: Gradient(colors: [Color.blue, Color.accentColor]),
+//                                    startPoint: .topLeading,
+//                                    endPoint: .bottomTrailing
+//                                )
+//                            )
+//                            .clipShape(Circle())
+//                            .shadow(color: Color.accentColor.opacity(0.3), radius: 5, x: 0, y: 3)
+//                    }
+//                    .accessibility(label: Text("Новое гадание"))
+//                }
+//                .padding(.horizontal)
+//                .padding(.top, 16)
+//                .padding(.bottom, 12)
+//                .background(Color(.systemBackground))
+//                
+//                // Поиск и фильтры
+//                VStack(spacing: 12) {
+//                    SearchBar(text: $searchText, placeholder: "Поиск по клиентам")
+//                    
+//                    ScrollView(.horizontal, showsIndicators: false) {
+//                        HStack(spacing: 8) {
+//                            FilterButton(title: "Все", isSelected: filterType == .all) {
+//                                filterType = .all
+//                            }
+//                            
+//                            FilterButton(title: "Отправлено", isSelected: filterType == .sent) {
+//                                filterType = .sent
+//                            }
+//                            
+//                            FilterButton(title: "Не отправлено", isSelected: filterType == .notSent) {
+//                                filterType = .notSent
+//                            }
+//                        }
+//                        .padding(.horizontal)
+//                    }
+//                    .scrollDisabled(true)
+//                }
+//                .padding(.vertical, 12)
+//                .background(Color(.systemBackground))
+//                
+//                // Список сессий
+//                if isLoading {
+//                    Spacer()
+//                    ProgressView("Загрузка гаданий...")
+//                    Spacer()
+//                } else if let error = errorMessage {
+//                    Spacer()
+//                    VStack(spacing: 16) {
+//                        Image(systemName: "exclamationmark.triangle")
+//                            .font(.system(size: 40))
+//                            .foregroundColor(.orange)
+//                        
+//                        Text("Ошибка загрузки")
+//                            .font(.headline)
+//                        
+//                        Text(error)
+//                            .font(.subheadline)
+//                            .foregroundColor(.secondary)
+//                            .multilineTextAlignment(.center)
+//                        
+//                        Button("Повторить") {
+//                            fetchSessions()
+//                        }
+//                        .buttonStyle(.bordered)
+//                    }
+//                    .padding()
+//                    Spacer()
+//                } else if filteredSessions.isEmpty {
+//                    Spacer()
+//                    VStack(spacing: 16) {
+//                        Image(systemName: "doc.text.magnifyingglass")
+//                            .font(.system(size: 40))
+//                            .foregroundColor(.secondary)
+//                        
+//                        if searchText.isEmpty && filterType == .all {
+//                            Text("Нет сохраненных гаданий")
+//                                .font(.headline)
+//                            
+//                            Text("Начните новое гадание")
+//                                .font(.subheadline)
+//                                .foregroundColor(.secondary)
+//                            
+//                            Button("Новое гадание") {
+//                                showingNewSession = true
+//                            }
+//                            .buttonStyle(.borderedProminent)
+//                            .padding(.top)
+//                        } else {
+//                            Text("Гаданий не найдено")
+//                                .font(.headline)
+//                            
+//                            Text("Попробуйте изменить поиск или фильтры")
+//                                .font(.subheadline)
+//                                .foregroundColor(.secondary)
+//                        }
+//                    }
+//                    .padding()
+//                    Spacer()
+//                } else {
+//                    ScrollView {
+//                        LazyVStack(spacing: 12) {
+//                            ForEach(filteredSessions) { session in
+//                                SessionRow(session: session)
+//                                    .contentShape(Rectangle())
+//                                    .onTapGesture {
+//                                        print("Выбрана сессия ID: \(session.id)")
+//                                        print("Клиент: \(session.clientName)")
+//                                        print("Расклад: \(session.spreadName)")
+//                                        selectedSession = session
+//                                        showSessionDetail = true
+//                                    }
+//                                    .padding(.horizontal)
+//                                    .padding(.vertical, 12)
+//                                    .background(Color(.systemBackground))
+//                                    .cornerRadius(12)
+//                                    .shadow(color: Color.black.opacity(0.05), radius: 2, x: 0, y: 1)
+//                            }
+//                        }
+//                        .padding(.horizontal)
+//                        .padding(.vertical, 8)
+//                    }
+//                    .refreshable {
+//                        fetchSessions()
+//                    }
+//                }
+//            }
+//        }
+//        .sheet(isPresented: $showingNewSession) {
+//            ClientInputView()
+//        }
+//        .sheet(isPresented: $showSessionDetail) {
+//            if let session = selectedSession {
+//                SessionDetailView(session: session)
+//            } else {
+//                Text("No session selected") // Для отладки
+//            }
+//        }
+//        .onAppear {
+//            startListening()
+//        }
+//        .onDisappear {
+//            stopListening()
+//        }
+//        .navigationBarHidden(true)
+//    }
     
     // MARK: - Real-time Listener
         

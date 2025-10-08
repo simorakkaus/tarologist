@@ -17,7 +17,7 @@ struct MainTabView: View {
             }
             .tabItem {
                 Image(systemName: "moon.stars.fill")
-                Text("Гадания")
+                Text("Мои расклады")
             }
 
             /// Вторая вкладка — профиль, управление подпиской и выход
@@ -26,7 +26,7 @@ struct MainTabView: View {
             }
             .tabItem {
                 Image(systemName: "person.crop.circle")
-                Text("Профиль")
+                Text("Мой профиль")
             }
         }
         .accentColor(.blue)
