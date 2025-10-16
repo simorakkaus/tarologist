@@ -93,6 +93,7 @@ struct SpreadSelectionView: View {
                 spreadManager.loadSpreads()
             }
         }
+        
     }
 }
 
@@ -142,18 +143,4 @@ struct SpreadRow: View {
         .padding(.vertical, 8)
         .contentShape(Rectangle())
     }
-}
-
-#Preview {
-    SpreadSelectionView(
-        clientName: "Мария",
-        clientAge: "30",
-        questionCategory: QuestionCategory(
-            id: "love",
-            name: "Любовь и отношения",
-            description: "Вопросы о любовных отношениях"
-        ),
-        question: nil,
-        customQuestion: "Что меня ждет в любви?"
-    )
 }

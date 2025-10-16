@@ -18,7 +18,7 @@ enum ActiveSheet: Identifiable {
 }
 
 struct ClientInputView: View {
-    @Environment(\.presentationMode) var presentationMode
+    @Environment(\.dismiss) var dismiss
     @State private var clientName: String = ""
     @State private var clientAge: String = ""
     @State private var selectedCategory: QuestionCategory?
@@ -43,7 +43,7 @@ struct ClientInputView: View {
     @StateObject private var questionManager = QuestionManager()
     
     var body: some View {
-        NavigationView {
+        
             ZStack {
                 // Фон для скрытия клавиатуры по тапу
                 Color.clear
@@ -105,13 +105,13 @@ struct ClientInputView: View {
                                 .animation(.easeInOut, value: errorMessage)
                         }
                     }
+                    .listRowBackground(Color(.systemGroupedBackground))
                     
                     // Section 2: Question Category
                     Section(header: Text("Категория вопроса")) {
                         if let selectedCategory = selectedCategory {
                             HStack {
                                 Text(selectedCategory.name)
-                                    .lineLimit(2)
                                 Spacer()
                                 Button("Изменить") {
                                     hideKeyboard()
@@ -126,6 +126,7 @@ struct ClientInputView: View {
                             }
                         }
                     }
+                    .listRowBackground(Color(.systemGroupedBackground))
                     
                     // Section 3: Question Selection
                     if selectedCategory != nil {
@@ -134,7 +135,6 @@ struct ClientInputView: View {
                                 if let selectedQuestion = selectedQuestion {
                                     HStack {
                                         Text(selectedQuestion.text)
-                                            .lineLimit(3)
                                         Spacer()
                                         Button("Изменить") {
                                             hideKeyboard()
@@ -172,6 +172,7 @@ struct ClientInputView: View {
                                 .foregroundColor(.blue)
                             }
                         }
+                        .listRowBackground(Color(.systemGroupedBackground))
                     }
                     
                     // Section 4: Support Information
@@ -181,7 +182,11 @@ struct ClientInputView: View {
                             showSupportAlert = true
                         }
                     }
+                    .listRowBackground(Color(.systemGroupedBackground))
                 }
+                .scrollContentBackground(.hidden)
+                //.scrollDisabled(true)
+                .background(Color.clear)
                 .scrollDismissesKeyboard(.interactively)
                 
                 if questionManager.categories.isEmpty {
@@ -190,15 +195,20 @@ struct ClientInputView: View {
                 }
             }
             .navigationTitle("Новое гадание")
-            .navigationBarItems(
-                leading: Button("Отмена") {
-                    presentationMode.wrappedValue.dismiss()
-                },
-                trailing: Button("Начать") {
-                    startReading()
+            .navigationBarBackButtonHidden(true)
+            .toolbar {
+                ToolbarItem(placement: .navigationBarLeading) {
+                    Button("Отмена") {
+                        dismiss()
+                    }
                 }
-                .disabled(!isFormValid)
-            )
+                ToolbarItem(placement: .navigationBarTrailing) {
+                    Button("Начать") {
+                        startReading()
+                    }
+                    .disabled(!isFormValid)
+                }
+            }
             .sheet(isPresented: $showingSpreadSelection) {
                 SpreadSelectionView(
                     clientName: clientName,
@@ -254,7 +264,7 @@ struct ClientInputView: View {
                 questionManager.removeListeners()
                 questionManager.setupRealTimeListeners()
             }
-        }
+        
     }
     
     var isFormValid: Bool {
