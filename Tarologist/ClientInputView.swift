@@ -44,13 +44,15 @@ struct ClientInputView: View {
     
     var body: some View {
         
-            ZStack {
-                // Фон для скрытия клавиатуры по тапу
-                Color.clear
-                    .contentShape(Rectangle())
-                    .onTapGesture {
-                        hideKeyboard()
-                    }
+        ZStack {
+            // Фон для скрытия клавиатуры по тапу
+            Color.clear
+                .contentShape(Rectangle())
+                .onTapGesture {
+                    hideKeyboard()
+                }
+            
+            VStack{
                 
                 Form {
                     // Section 1: Client Information
@@ -188,82 +190,87 @@ struct ClientInputView: View {
                 //.scrollDisabled(true)
                 .background(Color.clear)
                 .scrollDismissesKeyboard(.interactively)
-                
-                if questionManager.categories.isEmpty {
-                    ProgressView("Загрузка категорий...")
-                        .scaleEffect(1.5)
+                Button(action: startReading) {
+                    Text("Начать гадание")
+                        .frame(maxWidth: .infinity, minHeight: 44)
+                        .contentShape(Rectangle())
+                        .bold()
+                }
+                .buttonStyle(.borderedProminent)
+                .padding(.horizontal, 20)
+                .padding(.bottom, 20)
+                .disabled(!isFormValid)
+            }
+            
+            if questionManager.categories.isEmpty {
+                ProgressView("Загрузка категорий...")
+                    .scaleEffect(1.5)
+            }
+        }
+        .navigationTitle("Новое гадание")
+        .navigationBarBackButtonHidden(true)
+        .toolbar {
+            ToolbarItem(placement: .navigationBarLeading) {
+                Button("Отмена") {
+                    dismiss()
                 }
             }
-            .navigationTitle("Новое гадание")
-            .navigationBarBackButtonHidden(true)
-            .toolbar {
-                ToolbarItem(placement: .navigationBarLeading) {
-                    Button("Отмена") {
-                        dismiss()
-                    }
-                }
-                ToolbarItem(placement: .navigationBarTrailing) {
-                    Button("Начать") {
-                        startReading()
-                    }
-                    .disabled(!isFormValid)
-                }
-            }
-            .sheet(isPresented: $showingSpreadSelection) {
-                SpreadSelectionView(
-                    clientName: clientName,
-                    clientAge: clientAge,
-                    questionCategory: selectedCategory!,
-                    question: selectedQuestion,
-                    customQuestion: isUsingCustomQuestion ? customQuestion : nil
+        }
+        .sheet(isPresented: $showingSpreadSelection) {
+            SpreadSelectionView(
+                clientName: clientName,
+                clientAge: clientAge,
+                questionCategory: selectedCategory!,
+                question: selectedQuestion,
+                customQuestion: isUsingCustomQuestion ? customQuestion : nil
+            )
+        }
+        .alert("Поддержка", isPresented: $showSupportAlert) {
+            Button("OK", role: .cancel) {}
+        } message: {
+            Text("Если вы хотите предложить новую категорию или вопрос, пожалуйста, свяжитесь с поддержкой через раздел 'Профиль'.")
+        }
+        .sheet(item: $activeSheet) { item in
+            switch item {
+            case .categorySelection:
+                CategorySelectionView(
+                    categories: questionManager.categories,
+                    selectedCategory: $selectedCategory
                 )
-            }
-            .alert("Поддержка", isPresented: $showSupportAlert) {
-                Button("OK", role: .cancel) {}
-            } message: {
-                Text("Если вы хотите предложить новую категорию или вопрос, пожалуйста, свяжитесь с поддержкой через раздел 'Профиль'.")
-            }
-            .sheet(item: $activeSheet) { item in
-                switch item {
-                case .categorySelection:
-                    CategorySelectionView(
-                        categories: questionManager.categories,
-                        selectedCategory: $selectedCategory
+            case .questionSelection:
+                if let categoryId = selectedCategory?.id {
+                    QuestionSelectionView(
+                        questions: questionManager.questions(for: categoryId),
+                        selectedQuestion: $selectedQuestion
                     )
-                case .questionSelection:
-                    if let categoryId = selectedCategory?.id {
-                        QuestionSelectionView(
-                            questions: questionManager.questions(for: categoryId),
-                            selectedQuestion: $selectedQuestion
-                        )
-                    }
                 }
             }
-            .onChange(of: selectedCategory) { newCategory in
-                // Сбрасываем выбранный вопрос при изменении категории
-                if selectedQuestion != nil {
-                    selectedQuestion = nil
-                }
-                // Также сбрасываем пользовательский вопрос
-                if isUsingCustomQuestion {
-                    isUsingCustomQuestion = false
-                    customQuestion = ""
-                }
+        }
+        .onChange(of: selectedCategory) { newCategory in
+            // Сбрасываем выбранный вопрос при изменении категории
+            if selectedQuestion != nil {
+                selectedQuestion = nil
             }
-            .onAppear {
-                questionManager.setupRealTimeListeners()
-                // Автофокус на поле имени при открытии
-                DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
-                    focusedField = .clientName
-                }
+            // Также сбрасываем пользовательский вопрос
+            if isUsingCustomQuestion {
+                isUsingCustomQuestion = false
+                customQuestion = ""
             }
-            .onDisappear {
-                questionManager.removeListeners()
+        }
+        .onAppear {
+            questionManager.setupRealTimeListeners()
+            // Автофокус на поле имени при открытии
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+                focusedField = .clientName
             }
-            .refreshable {
-                questionManager.removeListeners()
-                questionManager.setupRealTimeListeners()
-            }
+        }
+        .onDisappear {
+            questionManager.removeListeners()
+        }
+        .refreshable {
+            questionManager.removeListeners()
+            questionManager.setupRealTimeListeners()
+        }
         
     }
     
