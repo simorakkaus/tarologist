@@ -23,7 +23,29 @@ struct LoginRegisterView: View {
     
     var body: some View {
         ZStack {
-            // Основной контент
+            if let errorMessage = errorMessage {
+                // Показываем ErrorView при ошибке
+                ErrorView.authError(onRetry: {
+                    // Просто скрываем ошибку - это правильный подход
+                    self.errorMessage = nil
+                })
+            }
+            else {
+                // Основной контент
+                mainContentView
+            }
+            
+            // Загрузочный экран поверх всего
+            if isLoading {
+                LoadingScreenView()
+                    .frame(maxWidth: .infinity, maxHeight: .infinity)
+                    .background(Color(.systemBackground))
+            }
+        }
+    }
+    
+    // MARK: - View Components
+        private var mainContentView: some View {
             NavigationStack {
                 VStack(spacing: 20) {
                     Spacer()
@@ -32,25 +54,21 @@ struct LoginRegisterView: View {
                         .symbolRenderingMode(.hierarchical)
                         .font(.system(size: 60))
                         .foregroundColor(.blue)
-                        .symbolEffect(.wiggle.forward.byLayer, options: .nonRepeating, value: isLoginMode)
+                        .symbolEffect(.bounce, options: .nonRepeating)
+                        .symbolEffect(.bounce, options: .nonRepeating, value: isLoginMode)
                     
                     Form {
                         Section {
-                            TextField("Логин", text: $login)
+                            TextField(isLoginMode ? "Логин" : "Придумайте логин для входа", text: $login)
                                 .textInputAutocapitalization(.never)
                                 .disableAutocorrection(true)
                                 .onChange(of: login) { _ in
                                     errorMessage = nil
                                 }
-                            SecureField("Пароль", text: $password)
+                            SecureField(isLoginMode ? "Пароль" : "Придумайте пароль", text: $password)
                                 .onChange(of: password) { _ in
                                     errorMessage = nil
                                 }
-                            if let error = errorMessage {
-                                Text(error)
-                                    .foregroundColor(.red)
-                                    .fixedSize(horizontal: false, vertical: true)
-                            }
                         }
                         footer: {
                             if isLoginMode {
@@ -71,7 +89,6 @@ struct LoginRegisterView: View {
                             .frame(maxWidth: .infinity, minHeight: 44)
                             .contentShape(Rectangle())
                             .bold()
-
                     }
                     .buttonStyle(.borderedProminent)
                     .padding(.horizontal, 20)
@@ -93,18 +110,10 @@ struct LoginRegisterView: View {
                         }
                     }
                 }
-            }
-            .blur(radius: isLoading ? 3 : 0) // Размываем контент при загрузке
-            .allowsHitTesting(!isLoading) // Блокируем взаимодействие при загрузке
-            
-            // Полноэкранный загрузочный экран
-            if isLoading {
-                LoadingScreenView()
-                    .frame(maxWidth: .infinity, maxHeight: .infinity)
-                    .background(Color(.systemBackground))
+                .blur(radius: isLoading ? 3 : 0)
+                .allowsHitTesting(!isLoading)
             }
         }
-    }
     
     // MARK: - Computed Properties
     /// Проверяет валидность формы
@@ -253,7 +262,7 @@ struct LoginRegisterView: View {
         Дата: \(currentDate)
         """
     }
-
+    
     /// Возвращает модель устройства
     private func getDeviceModel() -> String {
         var systemInfo = utsname()
@@ -298,14 +307,14 @@ struct LoginRegisterView: View {
         
         return deviceMapping[identifier] ?? identifier
     }
-
+    
     /// Возвращает версию приложения
     private func getAppVersion() -> String {
         let version = Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String ?? "Unknown"
         let build = Bundle.main.infoDictionary?["CFBundleVersion"] as? String ?? "Unknown"
         return "\(version) (\(build))"
     }
-
+    
     /// Возвращает текущую дату в формате строки
     private func getCurrentDate() -> String {
         let formatter = DateFormatter()

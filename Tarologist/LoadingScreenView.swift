@@ -17,7 +17,7 @@ struct LoadingScreenView: View {
                 .symbolRenderingMode(.hierarchical)
                 .font(.system(size: 60))
                 .foregroundColor(.blue)
-                .symbolEffect(.wiggle.forward.byLayer, options: .repeat(.periodic(delay: 1.0)))
+                .symbolEffect(.bounce, options: .repeat(.periodic(delay: 1.0)))
             Text("Загрузка...")
                 .font(.body)
                 .fontWeight(.bold)

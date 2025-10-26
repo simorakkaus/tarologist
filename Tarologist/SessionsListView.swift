@@ -46,7 +46,37 @@ struct SessionsListView: View {
     }
     
     var body: some View {
+        
         NavigationStack {
+            
+            if isLoading {
+                Spacer()
+                ProgressView("Загрузка гаданий...") // вот тут покрасивше надо переписать
+                Spacer()
+            } else if let error = errorMessage { // это тоже переписать покрасивше + добавить CTA что делать, кроме "Повторить"
+                Spacer()
+                VStack(spacing: 16) {
+                    Image(systemName: "exclamationmark.triangle")
+                        .font(.system(size: 40))
+                        .foregroundColor(.orange)
+
+                    Text("Ошибка загрузки")
+                        .font(.headline)
+
+                    Text(error)
+                        .font(.subheadline)
+                        .foregroundColor(.secondary)
+                        .multilineTextAlignment(.center)
+
+                    Button("Повторить") {
+                        fetchSessions()
+                    }
+                    .buttonStyle(.bordered)
+                }
+                .padding()
+                Spacer()
+            }
+            
             List {
                 ForEach(filteredSessions) { session in
                     SessionCardView(session: session)
@@ -69,7 +99,7 @@ struct SessionsListView: View {
                         Image(systemName: "moon.stars.circle.fill")
                             .font(.system(size: 26))
                             .frame(width: 56, height: 56)
-                            .symbolRenderingMode(.multicolor)
+                            .symbolRenderingMode(.hierarchical)
                             .symbolEffect(.bounce, options: .nonRepeating)
                     }
                 }
