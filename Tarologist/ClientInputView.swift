@@ -202,7 +202,7 @@ struct ClientInputView: View {
         .navigationBarBackButtonHidden(true)
         .toolbar {
             ToolbarItem(placement: .navigationBarLeading) {
-                Button("Отмена") {
+                Button("Отменить") {
                     dismiss()
                 }
             }

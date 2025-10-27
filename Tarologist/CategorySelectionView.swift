@@ -20,18 +20,24 @@ struct CategorySelectionView: View {
                     presentationMode.wrappedValue.dismiss()
                 }) {
                     HStack {
-                        Text(category.name)
-                            .foregroundColor(.primary)
-                        Spacer()
+                        VStack(alignment: .leading) {
+                            Text(category.name)
+                                .foregroundColor(.primary)
+                            Text(category.description ?? "")
+                                .foregroundColor(.secondary)
+                                .font(.caption)
+                        }
                         if selectedCategory?.id == category.id {
-                            Image(systemName: "checkmark")
+                            Spacer()
+                            Image(systemName: "checkmark.circle.fill")
                                 .foregroundColor(.blue)
+                                .symbolRenderingMode(.hierarchical)
                         }
                     }
                 }
             }
             .navigationTitle("Выберите категорию")
-            .navigationBarItems(trailing: Button("Отмена") {
+            .navigationBarItems(leading: Button("Отменить") {
                 presentationMode.wrappedValue.dismiss()
             })
         }

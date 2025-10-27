@@ -38,51 +38,72 @@ struct SessionsListView: View {
             }
         }
         
-        if searchText.isEmpty {
-            return filtered
-        } else {
-            return filtered.filter { $0.clientName.localizedCaseInsensitiveContains(searchText) }
+        guard !searchText.isEmpty else { return filtered }
+        
+        let searchLower = searchText.lowercased()
+        
+        return filtered.filter { session in
+            // Массив всех текстовых полей для поиска
+            let searchableStrings = [
+                session.clientName,
+                session.clientAge,
+                session.spreadName,
+                session.questionCategoryName,
+                session.questionText,
+                session.interpretation
+            ].compactMap { $0 } + getDateSearchStrings(session.date)
+            
+            return searchableStrings.contains { $0.lowercased().contains(searchLower) }
+        }
+    }
+
+    // Вспомогательная функция для получения даты в разных форматах
+    private func getDateSearchStrings(_ date: Date) -> [String] {
+        let dateFormats = [
+            "dd.MM.yyyy",   // 20.10.2025
+            "dd.MM.yy",     // 20.10.25
+            "MM.yyyy",      // 10.2025
+            "yyyy",         // 2025
+            "MMMM yyyy",    // октябрь 2025
+            "MMMM",         // октябрь
+            "EEEE"          // понедельник
+        ]
+        
+        return dateFormats.map { format in
+            let formatter = DateFormatter()
+            formatter.dateFormat = format
+            formatter.locale = Locale(identifier: "ru_RU")
+            return formatter.string(from: date)
         }
     }
     
     var body: some View {
-        
         NavigationStack {
-            
-            if isLoading {
-                Spacer()
-                ProgressView("Загрузка гаданий...") // вот тут покрасивше надо переписать
-                Spacer()
-            } else if let error = errorMessage { // это тоже переписать покрасивше + добавить CTA что делать, кроме "Повторить"
-                Spacer()
-                VStack(spacing: 16) {
-                    Image(systemName: "exclamationmark.triangle")
-                        .font(.system(size: 40))
-                        .foregroundColor(.orange)
-
-                    Text("Ошибка загрузки")
-                        .font(.headline)
-
-                    Text(error)
-                        .font(.subheadline)
-                        .foregroundColor(.secondary)
-                        .multilineTextAlignment(.center)
-
-                    Button("Повторить") {
-                        fetchSessions()
+            ZStack {
+                // Основной контент - показываем только когда нет ошибки и загрузки
+                if !isLoading && errorMessage == nil {
+                    List {
+                        ForEach(filteredSessions) { session in
+                            SessionCardView(session: session)
+                        }
                     }
-                    .buttonStyle(.bordered)
+                    .listStyle(.plain)
                 }
-                .padding()
-                Spacer()
-            }
-            
-            List {
-                ForEach(filteredSessions) { session in
-                    SessionCardView(session: session)
+                
+                // Состояние загрузки
+                if isLoading {
+                    LoadingView()
+                }
+                
+                // Состояние ошибки
+                if let errorMessage = errorMessage, !isLoading {
+                    ErrorView.sessionsLoadingError(
+                        onRetry: {
+                            fetchSessions()
+                        }
+                    )
                 }
             }
-            .listStyle(.plain)
             .navigationTitle("Мои расклады")
             .refreshable {
                 fetchSessions()
@@ -117,7 +138,7 @@ struct SessionsListView: View {
     
     private func startListening() {
         guard let userID = authManager.getCurrentUserId() else {
-            self.errorMessage = "Пользователь не авторизован"
+            self.errorMessage = "Пользователь не авторизован. Пожалуйста, войдите в систему."
             self.isLoading = false
             print("Ошибка: пользователь не авторизован")
             return
@@ -140,10 +161,11 @@ struct SessionsListView: View {
                     print("Успешно получено \(sessions.count) сессий")
                     withAnimation {
                         self.sessions = sessions
+                        self.errorMessage = nil
                     }
                 case .failure(let error):
                     print("Ошибка получения сессий: \(error.localizedDescription)")
-                    self.errorMessage = error.localizedDescription
+                    self.errorMessage = self.getUserFriendlyErrorMessage(error)
                 }
             }
         }
@@ -158,7 +180,7 @@ struct SessionsListView: View {
     
     private func fetchSessions() {
         guard let userID = authManager.getCurrentUserId() else {
-            self.errorMessage = "Пользователь не авторизован"
+            self.errorMessage = "Пользователь не авторизован. Пожалуйста, войдите в систему."
             self.isLoading = false
             return
         }
@@ -174,12 +196,47 @@ struct SessionsListView: View {
                 case .success(let sessions):
                     withAnimation {
                         self.sessions = sessions
+                        self.errorMessage = nil
                     }
                 case .failure(let error):
-                    self.errorMessage = error.localizedDescription
+                    self.errorMessage = self.getUserFriendlyErrorMessage(error)
                 }
             }
         }
+    }
+    
+    // MARK: - Обработка ошибок
+    
+    /// Преобразует технические ошибки в понятные пользователю сообщения
+    private func getUserFriendlyErrorMessage(_ error: Error) -> String {
+        let nsError = error as NSError
+        
+        // Ошибки сети
+        if nsError.domain == NSURLErrorDomain {
+            switch nsError.code {
+            case NSURLErrorNotConnectedToInternet, NSURLErrorNetworkConnectionLost:
+                return "Отсутствует подключение к интернету. Пожалуйста, проверьте ваше соединение."
+            case NSURLErrorTimedOut:
+                return "Превышено время ожидания ответа от сервера. Пожалуйста, попробуйте снова."
+            default:
+                return "Проблема с сетью. Пожалуйста, проверьте подключение к интернету."
+            }
+        }
+        
+        // Ошибки Firestore
+        if nsError.domain == "FIRFirestoreErrorDomain" {
+            switch nsError.code {
+            case 7: // PERMISSION_DENIED
+                return "У вас нет прав для доступа к этим данным. Пожалуйста, войдите в систему."
+            case 13: // INTERNAL
+                return "Внутренняя ошибка сервера. Пожалуйста, попробуйте позже."
+            default:
+                return "Ошибка при загрузке данных. Пожалуйста, попробуйте снова."
+            }
+        }
+        
+        // Общие ошибки
+        return error.localizedDescription
     }
     
     // MARK: - Действия с сессиями
@@ -196,6 +253,7 @@ struct SessionsListView: View {
                 }
             case .failure(let error):
                 print("Ошибка удаления сессии: \(error.localizedDescription)")
+                // Здесь можно показать toast или alert об ошибке удаления
             }
         }
     }
@@ -221,7 +279,7 @@ struct SessionsListView: View {
         SessionManager.shared.updateSession(updatedSession, for: userID) { result in
             switch result {
             case .success:
-                // Обновляем сессию в локальном массиве
+                // Обновляем сессию в локальном массива
                 if let index = self.sessions.firstIndex(where: { $0.id == session.id }) {
                     self.sessions[index] = updatedSession
                 }
@@ -232,7 +290,26 @@ struct SessionsListView: View {
     }
 }
 
-// MARK: - Session Card View
+// MARK: - Loading View
+
+struct LoadingView: View {
+    var body: some View {
+        VStack(spacing: 16) {
+            Spacer()
+            
+            ProgressView()
+                .scaleEffect(1.5)
+            
+            Text("Загрузка гаданий...")
+                .font(.subheadline)
+                .foregroundColor(.secondary)
+            
+            Spacer()
+        }
+    }
+}
+
+// MARK: - Session Card View (без изменений)
 
 struct SessionCardView: View {
     let session: TarotSession
@@ -245,7 +322,7 @@ struct SessionCardView: View {
                 VStack(alignment: .leading, spacing: 4) {
                     
                     HStack {
-                        Text(session.clientName)
+                        Text("\(session.clientName),")
                             .font(.headline)
                         
                         Text(session.clientAge ?? "")
@@ -280,11 +357,8 @@ struct SessionCardView: View {
                             }
                         } label: {
                             Image(systemName: "ellipsis")
-                                .font(.system(size: 14, weight: .bold))
-                                .foregroundColor(.blue)
-                                .frame(width: 32, height: 32)
-                                .background(Color.gray.opacity(0.2))
-                                .clipShape(Circle())
+                                .frame(width: 44, height: 44)
+                                .symbolRenderingMode(.hierarchical)
                         }
                     }
                     
@@ -366,3 +440,10 @@ struct SessionCardView: View {
     SessionsListView()
         .environmentObject(AuthManager())
 }
+
+#Preview("Состояние загрузки") {
+    SessionsListView()
+        .environmentObject(AuthManager())
+}
+
+

@@ -171,7 +171,7 @@ struct SessionDetailView: View {
                 Button("Удалить", role: .destructive) {
                     deleteSession()
                 }
-                Button("Отмена", role: .cancel) {}
+                Button("Отменить", role: .cancel) {}
             } message: {
                 Text("Вы уверены, что хотите удалить эту сессию? Это действие нельзя отменить.")
             }
@@ -288,7 +288,7 @@ struct EditSessionView: View {
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .navigationBarLeading) {
-                    Button("Отмена") {
+                    Button("Отменить") {
                         presentationMode.wrappedValue.dismiss()
                     }
                 }

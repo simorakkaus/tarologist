@@ -19,23 +19,23 @@ struct QuestionSelectionView: View {
                     selectedQuestion = question
                     presentationMode.wrappedValue.dismiss()
                 }) {
-                    VStack(alignment: .leading, spacing: 4) {
+                    HStack {
                         Text(question.text)
                             .foregroundColor(.primary)
                             .fixedSize(horizontal: false, vertical: true)
                         
                         if selectedQuestion?.id == question.id {
-                            HStack {
                                 Spacer()
-                                Image(systemName: "checkmark")
+                                Image(systemName: "checkmark.circle.fill")
                                     .foregroundColor(.blue)
-                            }
+                                    .symbolRenderingMode(.hierarchical)
+                            
                         }
                     }
                 }
             }
             .navigationTitle("Выберите вопрос")
-            .navigationBarItems(trailing: Button("Отмена") {
+            .navigationBarItems(leading: Button("Отменить") {
                 presentationMode.wrappedValue.dismiss()
             })
         }

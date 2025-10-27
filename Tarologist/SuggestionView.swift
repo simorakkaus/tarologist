@@ -22,7 +22,6 @@ struct SuggestionView: View {
     var body: some View {
         NavigationView {
             Form {
-                
                     Section(header: Text("Категория")) {
                         Picker("Выберите категорию", selection: $selectedCategory) {
                             Text("Не выбрана").tag(nil as QuestionCategory?)
@@ -72,7 +71,7 @@ struct SuggestionView: View {
             }
             .navigationTitle("Предложить идею")
             .navigationBarItems(
-                leading: Button("Отмена") {
+                leading: Button("Отменить") {
                     dismiss()
                 }
             )
