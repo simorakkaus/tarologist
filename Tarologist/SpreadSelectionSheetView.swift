@@ -61,7 +61,6 @@ struct SpreadRow: View {
                 Text(spread.description)
                     .font(.subheadline)
                     .foregroundColor(.secondary)
-                    .lineLimit(2)
                 
                 Text("Карт: \(spread.numberOfCards)")
                     .font(.caption)
