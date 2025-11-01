@@ -87,7 +87,7 @@ struct SessionsListView: View {
                             SessionCardView(session: session)
                         }
                     }
-                    .listStyle(.plain)
+                    
                 }
                 
                 // Состояние загрузки

@@ -34,7 +34,7 @@ struct SpreadSelectionSheetView: View {
                         }
                         .buttonStyle(PlainButtonStyle())
                     }
-                    .listStyle(PlainListStyle())
+                    
                 }
             }
             .navigationTitle("Выбор расклада")
