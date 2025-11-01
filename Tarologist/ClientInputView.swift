@@ -67,6 +67,7 @@ struct ClientInputView: View {
             mainContent
             loadingIndicator
         }
+        .toolbar(.hidden, for: .tabBar)
         .navigationTitle("Новое гадание")
         .navigationBarBackButtonHidden(true)
         .toolbar {
