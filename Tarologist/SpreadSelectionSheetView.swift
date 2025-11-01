@@ -39,7 +39,7 @@ struct SpreadSelectionSheetView: View {
             }
             .navigationTitle("Выбор расклада")
             .navigationBarItems(
-                trailing: Button("Готово") {
+                leading: Button("Отмена") {
                     dismiss()
                 }
             )
@@ -54,20 +54,6 @@ struct SpreadRow: View {
     
     var body: some View {
         HStack {
-            if let imageName = spread.imageName {
-                Image(imageName)
-                    .resizable()
-                    .scaledToFit()
-                    .frame(width: 60, height: 60)
-                    .cornerRadius(8)
-            } else {
-                Image(systemName: "rectangle.grid.3x2")
-                    .resizable()
-                    .scaledToFit()
-                    .frame(width: 60, height: 60)
-                    .foregroundColor(.gray)
-            }
-            
             VStack(alignment: .leading, spacing: 4) {
                 Text(spread.name)
                     .font(.headline)
@@ -88,7 +74,7 @@ struct SpreadRow: View {
             if isSelected {
                 Image(systemName: "checkmark.circle.fill")
                     .foregroundColor(.blue)
-                    .font(.title2)
+                    .symbolRenderingMode(.hierarchical)
             }
         }
         .padding(.vertical, 8)

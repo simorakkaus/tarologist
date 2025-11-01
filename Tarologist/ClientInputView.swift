@@ -345,7 +345,7 @@ struct ClientInputView: View {
                     }) {
                         VStack(alignment: .leading, spacing: 4) {
                             Text(selectedSpread.name)
-                                .font(.headline)
+                                .font(.body)
                                 .foregroundColor(.primary)
                             Text(selectedSpread.description)
                                 .font(.caption)
