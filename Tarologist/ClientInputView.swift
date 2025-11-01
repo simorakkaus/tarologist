@@ -12,6 +12,7 @@ enum ActiveSheet: Identifiable {
     case categorySelection
     case questionSelection
     case suggestion
+    case spreadSelection
     
     var id: Int {
         hashValue
@@ -30,7 +31,9 @@ struct ClientInputView: View {
     @State private var errorMessage: String?
     @State private var showSupportAlert: Bool = false
     @State private var activeSheet: ActiveSheet?
-    @State private var showingSpreadSelection = false
+    
+    @State private var selectedSpread: Spread?
+    @State private var navigateToReading = false
     
     // Для управления фокусом и клавиатурой
     @FocusState private var focusedField: Field?
@@ -42,6 +45,7 @@ struct ClientInputView: View {
     }
     
     @StateObject private var questionManager = QuestionManager()
+    @StateObject private var spreadManager = SpreadManager()
     
     var body: some View {
         ZStack {
@@ -168,7 +172,31 @@ struct ClientInputView: View {
                         .listRowBackground(Color(.systemGroupedBackground))
                     }
                     
-                    // Section 4: Support Information
+                    
+                    if hasSelectedQuestion {
+                        Section(header: Text("Тип расклада")) {
+                            HStack {
+                                VStack(alignment: .leading, spacing: 4) {
+                                    Text(selectedSpread.name)
+                                        .font(.headline)
+                                    Text(selectedSpread.description)
+                                        .font(.caption)
+                                        .foregroundColor(.secondary)
+                                    Text("Карт: \(selectedSpread.numberOfCards)")
+                                        .font(.caption2)
+                                        .foregroundColor(.secondary)
+                                }
+                                Spacer()
+                                Button("Изменить") {
+                                    hideKeyboard()
+                                    activeSheet = .spreadSelection
+                                }
+                            }
+                        }
+                        .listRowBackground(Color(.systemGroupedBackground))
+                    }
+                    
+                    // Section 5: Support Information
                     Section(header: Text("Поддержка")) {
                         Button("Предложить новую категорию или вопрос") {
                             hideKeyboard()
@@ -207,15 +235,22 @@ struct ClientInputView: View {
                 }
             }
         }
-        .sheet(isPresented: $showingSpreadSelection) {
-            SpreadSelectionView(
-                clientName: clientName,
-                clientAge: clientAge,
-                questionCategory: selectedCategory!,
-                question: selectedQuestion,
-                customQuestion: isUsingCustomQuestion ? customQuestion : nil
+        .background(
+            NavigationLink(
+                destination: selectedSpread.map { spread in
+                    CardReadingView(
+                        clientName: clientName,
+                        clientAge: clientAge,
+                        questionCategory: selectedCategory!,
+                        question: selectedQuestion,
+                        customQuestion: isUsingCustomQuestion ? customQuestion : nil,
+                        selectedSpread: spread
+                    )
+                },
+                isActive: $navigateToReading,
+                label: {EmptyView()}
             )
-        }
+        )
         .sheet(item: $activeSheet) { item in
             switch item {
             case .categorySelection:
@@ -232,14 +267,15 @@ struct ClientInputView: View {
                 }
             case .suggestion:
                 SuggestionView(categories: questionManager.categories)
+                
+            case .spreadSelection:
+                SpreadSelectionSheetView(
+                    spreadManager: spreadManager,
+                    selectedSpread: $selectedSpread
+                )
             }
         }
-        .alert("Поддержка", isPresented: $showSupportAlert) {
-            Button("OK", role: .cancel) {}
-        } message: {
-            Text("Если вы хотите предложить новую категорию или вопрос, пожалуйста, свяжитесь с поддержкой через раздел 'Профиль'.")
-        }
-        .onChange(of: selectedCategory) { newCategory in
+        .onChange(of: selectedCategory) { _ in
             if selectedQuestion != nil {
                 selectedQuestion = nil
             }
@@ -247,9 +283,17 @@ struct ClientInputView: View {
                 isUsingCustomQuestion = false
                 customQuestion = ""
             }
+            selectedSpread = nil
+        }
+        .onChange(of: selectedQuestion) { _ in
+            selectedSpread = nil
+        }
+        .onChange(of: isUsingCustomQuestion) { _ in
+            selectedSpread = nil
         }
         .onAppear {
             questionManager.setupRealTimeListeners()
+            spreadManager.loadSpreads()
             DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
                 focusedField = .clientName
             }
@@ -260,14 +304,20 @@ struct ClientInputView: View {
         .refreshable {
             questionManager.removeListeners()
             questionManager.setupRealTimeListeners()
+            spreadManager.loadSpreads()
         }
+    }
+    
+    private var hasSelectedQuestion: Bool {
+        (selectedQuestion != nil) || (isUsingCustomQuestion && !customQuestion.isEmpty)
     }
     
     var isFormValid: Bool {
         !clientName.isEmpty &&
         !clientAge.isEmpty &&
         selectedCategory != nil &&
-        (isUsingCustomQuestion ? !customQuestion.isEmpty : selectedQuestion != nil)
+        hasSelectedQuestion &&
+        selectedSpread != nil
     }
     
     private func loadData() {
@@ -285,8 +335,13 @@ struct ClientInputView: View {
             return
         }
         
-        guard isUsingCustomQuestion ? !customQuestion.isEmpty : selectedQuestion != nil else {
+        guard hasSelectedQuestion else {
             errorMessage = "Выберите или введите вопрос"
+            return
+        }
+        
+        guard selectedSpread != nil else {
+            errorMessage = "Выберите тип расклада"
             return
         }
         
@@ -297,15 +352,16 @@ struct ClientInputView: View {
             )
         }
         
-        showingSpreadSelection = true
+        navigateToReading = true
         
         print("""
-        Начало гадания для клиента:
-        - Имя: \(clientName)
-        - Возраст: \(clientAge)
-        - Категория: \(selectedCategory.name)
-        - Вопрос: \(isUsingCustomQuestion ? customQuestion : selectedQuestion?.text ?? "")
-        """)
+                Начало гадания для клиента:
+                - Имя: \(clientName)
+                - Возраст: \(clientAge)
+                - Категория: \(selectedCategory.name)
+                - Вопрос: \(isUsingCustomQuestion ? customQuestion : selectedQuestion?.text ?? "")
+                - Расклад: \(selectedSpread?.name ?? "Не выбран")
+                """)
     }
     
     private func hideKeyboard() {
