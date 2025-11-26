@@ -26,10 +26,9 @@ struct CardReadingView: View {
     @State private var errorMessage: String?
     @State private var showErrorAlert = false
     
-    @Environment(\.presentationMode) var presentationMode
+    @Environment(\.dismiss) var dismiss
     
     var body: some View {
-        NavigationView {
             ZStack {
                 if isDrawingCards {
                     // Экран процесса вытягивания карт
@@ -89,7 +88,7 @@ struct CardReadingView: View {
                                 ActionsView(
                                     onSave: saveReading,
                                     onShare: shareReading,
-                                    onNewReading: { presentationMode.wrappedValue.dismiss() }
+                                    onNewReading: { dismiss() }
                                 )
                             }
                         }
@@ -110,15 +109,16 @@ struct CardReadingView: View {
                     }
                 }
             }
-            .navigationTitle("Гадание")
-            .navigationBarTitleDisplayMode(.inline)
+            .navigationTitle("Готовы к гаданию?")
+            .navigationBarTitleDisplayMode(.large)
+            .navigationBarBackButtonHidden(true)
             .toolbar {
-                ToolbarItem(placement: .navigationBarLeading) {
-                    Button("Назад") {
-                        presentationMode.wrappedValue.dismiss()
+                        ToolbarItem(placement: .navigationBarLeading) {
+                            Button("Отмена") {
+                                dismiss()
+                            }
+                        }
                     }
-                }
-            }
             .sheet(isPresented: $showInterpretation) {
                 InterpretationDetailView(
                     interpretation: sessionManager.interpretation,
@@ -132,7 +132,6 @@ struct CardReadingView: View {
                     Text(errorMessage)
                 }
             }
-        }
     }
     
     // MARK: - Card Drawing
