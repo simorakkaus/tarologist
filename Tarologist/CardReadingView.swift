@@ -31,16 +31,20 @@ struct CardReadingView: View {
     var body: some View {
             ZStack {
                 if isDrawingCards {
-                    // Экран процесса вытягивания карт
                     DrawingInProgressView(
                         currentPosition: selectedSpread.positions[currentPositionIndex],
-                        progress: Double(currentPositionIndex) / Double(selectedSpread.positions.count)
+                        progress: Double(currentPositionIndex) / Double(selectedSpread.positions.count),
+                        spreadName: selectedSpread.name  // ← добавил передачу названия расклада
                     )
                 } else if drawnCards.isEmpty {
-                    // Экран перед началом гадания
                     PreparationView(
                         clientName: clientName,
+                        clientAge: clientAge,
                         spreadName: selectedSpread.name,
+                        spreadDescription: selectedSpread.description,  // ← передать описание
+                        numberOfCards: selectedSpread.numberOfCards,    // ← передать количество карт
+                        questionCategory: questionCategory.name,
+                        questionText: question?.text ?? customQuestion ?? "",
                         onStartDrawing: startCardDrawing
                     )
                 } else {
@@ -109,7 +113,7 @@ struct CardReadingView: View {
                     }
                 }
             }
-            .navigationTitle("Готовы к гаданию?")
+            .navigationTitle(drawnCards.isEmpty ? (isDrawingCards ? "Вытягиваю карты" : "Готовы к гаданию?") : "Результат гадания")
             .navigationBarTitleDisplayMode(.large)
             .navigationBarBackButtonHidden(true)
             .toolbar {
@@ -218,66 +222,59 @@ struct CardReadingView: View {
     }
 }
 
-// MARK: - Supporting Views
-
-struct PreparationView: View {
-    let clientName: String
-    let spreadName: String
-    let onStartDrawing: () -> Void
-    
-    var body: some View {
-        VStack(spacing: 20) {
-            Image(systemName: "cards")
-                .font(.system(size: 60))
-                .foregroundColor(.purple)
-            
-            Text("Готовы к гаданию?")
-                .font(.title2)
-                .fontWeight(.bold)
-            
-            Text("Для \(clientName)")
-                .font(.headline)
-            
-            Text("Расклад: \(spreadName)")
-                .font(.subheadline)
-                .foregroundColor(.secondary)
-            
-            Button("Начать гадание", action: onStartDrawing)
-                .buttonStyle(.borderedProminent)
-                .padding(.top, 20)
-        }
-        .padding()
-        .multilineTextAlignment(.center)
-    }
-}
-
 struct DrawingInProgressView: View {
     let currentPosition: SpreadPosition
     let progress: Double
+    let spreadName: String
+    
+    @State private var symbolAnimation = false
     
     var body: some View {
-        VStack(spacing: 20) {
-            ProgressView(value: progress)
-                .padding(.horizontal)
-            
-            Text("Вытягиваю карту...")
-                .font(.headline)
-            
-            Text("Позиция: \(currentPosition.name)")
-                .font(.subheadline)
-                .foregroundColor(.secondary)
-            
-            Text(currentPosition.description)
-                .font(.caption)
-                .foregroundColor(.secondary)
-                .multilineTextAlignment(.center)
-                .padding(.horizontal)
-            
-            Image(systemName: "hand.draw")
-                .font(.system(size: 40))
+        VStack(spacing: 32) {
+            // Большой анимированный SF Symbol
+            Image(systemName: "eyebrow")
+                .font(.system(size: 80))
                 .foregroundColor(.blue)
+                .symbolEffect(.variableColor, options: .repeating, value: symbolAnimation)
+            
+            // Основной поясняющий текст
+            Text("Вытягиваю карту...")
+                .font(.title2)
+                .fontWeight(.semibold)
+            
+            // Дополнительная информация
+            VStack(spacing: 12) {
+                Text("Позиция: \(currentPosition.name)")
+                    .font(.headline)
+                    .foregroundColor(.primary)
+                
+                Text(currentPosition.description)
+                    .font(.subheadline)
+                    .foregroundColor(.secondary)
+                    .multilineTextAlignment(.center)
+                
+                Text("Подготавливаю расклад: \(spreadName)")
+                    .font(.caption)
+                    .foregroundColor(.secondary)
+            }
+            
+            // Прогресс-бар
+            VStack(spacing: 8) {
+                ProgressView(value: progress)
+                    .progressViewStyle(.linear)
+                    .tint(.blue)
+                
+                Text("\(Int(progress * 100))%")
+                    .font(.caption)
+                    .foregroundColor(.secondary)
+            }
+            .padding(.horizontal, 20)
         }
-        .padding()
+        .padding(32)
+        .multilineTextAlignment(.center)
+        .onAppear {
+            symbolAnimation = true
+        }
     }
 }
 
