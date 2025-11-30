@@ -113,7 +113,7 @@ struct CardReadingView: View {
                     }
                 }
             }
-            .navigationTitle(drawnCards.isEmpty ? (isDrawingCards ? "Вытягиваю карты" : "Готовы к гаданию?") : "Результат гадания")
+            .navigationTitle(isDrawingCards ? "Делаю расклад" : (drawnCards.isEmpty ? "Готовы к гаданию?" : "Карты разложены"))
             .navigationBarTitleDisplayMode(.large)
             .navigationBarBackButtonHidden(true)
             .toolbar {
@@ -235,7 +235,7 @@ struct DrawingInProgressView: View {
             Image(systemName: "eyebrow")
                 .font(.system(size: 80))
                 .foregroundColor(.blue)
-                .symbolEffect(.variableColor, options: .repeating, value: symbolAnimation)
+                .symbolEffect(.breathe.pulse.byLayer, options: .repeat(.periodic(delay: 6.0)))
             
             // Основной поясняющий текст
             Text("Вытягиваю карту...")
@@ -258,17 +258,25 @@ struct DrawingInProgressView: View {
                     .foregroundColor(.secondary)
             }
             
-            // Прогресс-бар
-            VStack(spacing: 8) {
-                ProgressView(value: progress)
-                    .progressViewStyle(.linear)
-                    .tint(.blue)
+            
+            // Замени блок с прогресс-баром на это:
+            VStack(spacing: 12) {
+                HStack(spacing: 8) {
+                    ForEach(0..<selectedSpread.positions.count, id: \.self) { index in
+                        Image(systemName: index < currentPositionIndex ? "rectangle.fill" : "rectangle")
+                            .font(.caption)
+                            .foregroundColor(index < currentPositionIndex ? .blue : .gray)
+                            .symbolEffect(.bounce, value: index == currentPositionIndex)
+                    }
+                }
                 
-                Text("\(Int(progress * 100))%")
-                    .font(.caption)
-                    .foregroundColor(.secondary)
+                Text("Карта \(currentPositionIndex + 1) из \(selectedSpread.positions.count)")
+                    .font(.headline)
+                    .foregroundColor(.blue)
             }
             .padding(.horizontal, 20)
+            
+            
         }
         .padding(32)
         .multilineTextAlignment(.center)
@@ -290,7 +298,7 @@ struct CardView: View {
                     .frame(height: 120)
                 
                 VStack {
-                    Text(drawnCard.isReversed ? "↻" : "↑")
+                    Text(drawnCard.isReversed ? "arrow.down" : "arrow.up")
                         .font(.caption)
                     
                     Text(drawnCard.card.nameRu)
