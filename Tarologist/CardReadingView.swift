@@ -33,8 +33,7 @@ struct CardReadingView: View {
                 if isDrawingCards {
                     DrawingInProgressView(
                         currentPosition: selectedSpread.positions[currentPositionIndex],
-                        progress: Double(currentPositionIndex) / Double(selectedSpread.positions.count),
-                        spreadName: selectedSpread.name  // ← добавил передачу названия расклада
+                        spreadName: selectedSpread.name
                     )
                 } else if drawnCards.isEmpty {
                     PreparationView(
@@ -165,6 +164,8 @@ struct CardReadingView: View {
         let randomCard = TarotCardManager.shared.cards.randomElement()!
         let isReversed = Bool.random()
         
+        print("🎴 Выпала карта: \(randomCard.nameRu), ищет изображение: \(randomCard.imageName)")
+        
         let drawnCard = DrawnCard(
             card: randomCard,
             position: position,
@@ -222,90 +223,19 @@ struct CardReadingView: View {
     }
 }
 
-struct DrawingInProgressView: View {
-    let currentPosition: SpreadPosition
-    let progress: Double
-    let spreadName: String
-    
-    @State private var symbolAnimation = false
-    
-    var body: some View {
-        VStack(spacing: 32) {
-            // Большой анимированный SF Symbol
-            Image(systemName: "eyebrow")
-                .font(.system(size: 80))
-                .foregroundColor(.blue)
-                .symbolEffect(.breathe.pulse.byLayer, options: .repeat(.periodic(delay: 6.0)))
-            
-            // Основной поясняющий текст
-            Text("Вытягиваю карту...")
-                .font(.title2)
-                .fontWeight(.semibold)
-            
-            // Дополнительная информация
-            VStack(spacing: 12) {
-                Text("Позиция: \(currentPosition.name)")
-                    .font(.headline)
-                    .foregroundColor(.primary)
-                
-                Text(currentPosition.description)
-                    .font(.subheadline)
-                    .foregroundColor(.secondary)
-                    .multilineTextAlignment(.center)
-                
-                Text("Подготавливаю расклад: \(spreadName)")
-                    .font(.caption)
-                    .foregroundColor(.secondary)
-            }
-            
-            
-            // Замени блок с прогресс-баром на это:
-            VStack(spacing: 12) {
-                HStack(spacing: 8) {
-                    ForEach(0..<selectedSpread.positions.count, id: \.self) { index in
-                        Image(systemName: index < currentPositionIndex ? "rectangle.fill" : "rectangle")
-                            .font(.caption)
-                            .foregroundColor(index < currentPositionIndex ? .blue : .gray)
-                            .symbolEffect(.bounce, value: index == currentPositionIndex)
-                    }
-                }
-                
-                Text("Карта \(currentPositionIndex + 1) из \(selectedSpread.positions.count)")
-                    .font(.headline)
-                    .foregroundColor(.blue)
-            }
-            .padding(.horizontal, 20)
-            
-            
-        }
-        .padding(32)
-        .multilineTextAlignment(.center)
-        .onAppear {
-            symbolAnimation = true
-        }
-    }
-}
-
 struct CardView: View {
     let drawnCard: DrawnCard
     
     var body: some View {
         VStack(spacing: 8) {
-            // Заглушка для изображения карты
-            ZStack {
-                RoundedRectangle(cornerRadius: 8)
-                    .fill(Color.gray.opacity(0.3))
-                    .frame(height: 120)
-                
-                VStack {
-                    Text(drawnCard.isReversed ? "arrow.down" : "arrow.up")
-                        .font(.caption)
-                    
-                    Text(drawnCard.card.nameRu)
-                        .font(.caption)
-                        .multilineTextAlignment(.center)
-                }
-            }
+            
+            Image(drawnCard.card.imageName)
+                .resizable()
+                .scaledToFit()
+                .frame(height: 120)
+                .cornerRadius(8)
+                .rotationEffect(.degrees(drawnCard.isReversed ? 180 : 0))
+                .shadow(radius: 2)
             
             Text(drawnCard.positionName)
                 .font(.caption)
